@@ -23,9 +23,9 @@ GrACellShort* GrACellCreateShort(const long dim) {
       sizeof(GrACellShort));
 
   // Initialise properties
-  that->_status[0] = VecShortCreate(dim);
-  that->_status[1] = VecShortCreate(dim);
-  that->_iStatus = 0;
+  that->status[0] = VecShortCreate(dim);
+  that->status[1] = VecShortCreate(dim);
+  that->curStatus = 0;
 
   // Return the new GrACellShort
   return that;
@@ -42,9 +42,9 @@ GrACellFloat* GrACellCreateFloat(const long dim) {
       sizeof(GrACellFloat));
 
   // Initialise properties
-  that->_status[0] = VecFloatCreate(dim);
-  that->_status[1] = VecFloatCreate(dim);
-  that->_iStatus = 0;
+  that->status[0] = VecFloatCreate(dim);
+  that->status[1] = VecFloatCreate(dim);
+  that->curStatus = 0;
 
   // Return the new GrACellFloat
   return that;
@@ -63,8 +63,8 @@ void _GrACellShortFree(GrACellShort** that) {
   }
 
   // Free memory
-  VecFree(&((*that)->_status[0]));
-  VecFree(&((*that)->_status[1]));
+  VecFree(&((*that)->status[0]));
+  VecFree(&((*that)->status[1]));
   free(*that);
   *that = NULL;
 
@@ -82,8 +82,8 @@ void _GrACellFloatFree(GrACellFloat** that) {
   }
 
   // Free memory
-  VecFree(&((*that)->_status[0]));
-  VecFree(&((*that)->_status[1]));
+  VecFree(&((*that)->status[0]));
+  VecFree(&((*that)->status[1]));
   free(*that);
   *that = NULL;
 

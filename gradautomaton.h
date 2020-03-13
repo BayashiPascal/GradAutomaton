@@ -24,20 +24,20 @@
 typedef struct GrACellShort {
 
   // Double buffered status of the cell
-  VecShort* _status[2];
+  VecShort* status[2];
 
   // Index of the current status of the cell
-  unsigned char _iStatus;
+  unsigned char curStatus;
 
 } GrACellShort;
 
 typedef struct GrACellFloat {
 
   // Double buffered status of the cell
-  VecFloat* _status[2];
+  VecFloat* status[2];
 
   // Index of the current status of the cell
-  unsigned char _iStatus;
+  unsigned char curStatus;
 
 } GrACellFloat;
 
@@ -55,11 +55,62 @@ void _GrACellShortFree(GrACellShort** that);
 // Free the memory used by the GrACellFloat 'that'
 void _GrACellFloatFree(GrACellFloat** that);
 
+// Switch the current status of the GrACellShort 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+void _GrACellShortSwitchStatus(GrACellShort* const that);
+
+// Switch the current status of the GrACellFloat 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+void _GrACellFloatSwitchStatus(GrACellFloat* const that);
+
+// Return the current status of the GrACellShort 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+VecShort* _GrACellShortCurStatus(const GrACellShort* const that);
+
+// Return the current status of the GrACellFloat 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+VecFloat* _GrACellFloatCurStatus(const GrACellFloat* const that);
+
+// Return the previous status of the GrACellShort 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+VecShort* _GrACellShortPrevStatus(const GrACellShort* const that);
+
+// Return the previous status of the GrACellFloat 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+VecFloat* _GrACellFloatPrevStatus(const GrACellFloat* const that);
+
 // ================= Polymorphism ==================
 
 #define GrACellFree(G) _Generic(G, \
   GrACellShort**: _GrACellShortFree, \
   GrACellFloat**: _GrACellFloatFree, \
+  default: PBErrInvalidPolymorphism)(G)
+
+#define GrACellSwitchStatus(G) _Generic(G, \
+  GrACellShort*: _GrACellShortSwitchStatus, \
+  GrACellFloat*: _GrACellFloatSwitchStatus, \
+  default: PBErrInvalidPolymorphism)(G)
+
+#define GrACellCurStatus(G) _Generic(G, \
+  GrACellShort*: _GrACellShortCurStatus, \
+  GrACellFloat*: _GrACellFloatCurStatus, \
+  default: PBErrInvalidPolymorphism)(G)
+
+#define GrACellPrevStatus(G) _Generic(G, \
+  GrACellShort*: _GrACellShortPrevStatus, \
+  GrACellFloat*: _GrACellFloatPrevStatus, \
   default: PBErrInvalidPolymorphism)(G)
 
 // -------------- GrAFun
