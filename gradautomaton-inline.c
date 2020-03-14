@@ -142,3 +142,29 @@ VecFloat* _GrACellFloatPrevStatus(const GrACellFloat* const that) {
 
 }
 
+// -------------- GrAFun
+
+// ================ Functions implementation ====================
+
+// Return the type of the GrAFun 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrAFunType _GrAFunGetType(const GrAFun* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  return that->type;
+
+}

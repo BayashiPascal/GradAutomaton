@@ -188,9 +188,67 @@ void UnitTestGrACell(void) {
 
 }
 
+void UnitTestGrAFunDummyCreateFree(void) {
+
+  GrAFunDummy* fun = GrAFunCreateDummy();
+  if (
+    fun == NULL ||
+    fun->grAFun.type != GrAFunTypeDummy) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunCreateDummy failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrAFunFree(&fun);
+  if (fun != NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunFree failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  printf("UnitTestGrAFunDummyCreateFree OK\n");
+
+}
+
+void UnitTestGrAFunDummyGetType(void) {
+
+  GrAFunDummy* fun = GrAFunCreateDummy();
+  if (GrAFunGetType(fun) != GrAFunTypeDummy) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunDummyGetType failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrAFunFree(&fun);
+
+  printf("UnitTestGrAFunDummyGetType OK\n");
+
+}
+
+void UnitTestGrAFun(void) {
+
+  UnitTestGrAFunDummyCreateFree();
+  UnitTestGrAFunDummyGetType();
+  printf("UnitTestGrACell OK\n");
+
+}
+
 void UnitTestAll(void) {
 
   UnitTestGrACell();
+  UnitTestGrAFun();
   printf("UnitTestAll OK\n");
 
 }

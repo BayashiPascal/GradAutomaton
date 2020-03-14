@@ -88,3 +88,71 @@ void _GrACellFloatFree(GrACellFloat** that) {
   *that = NULL;
 
 }
+
+// -------------- GrAFun
+
+// ================ Functions declaration ====================
+
+// ================ Functions implementation ====================
+
+// Create a static GrAFun with type 'type'
+GrAFun GrAFunCreateStatic(const GrAFunType type) {
+
+  // Declare the new GrAFun
+  GrAFun that;
+
+  // Set properties
+  that.type = type;
+
+  // Return the new GrAFun
+  return that;
+
+}
+
+// Free the memory used by the GrAFun 'that'
+void _GrAFunFreeStatic(GrAFun* that) {
+
+  // If that is null
+  if (that == NULL) {
+
+    // Do nothing
+    return;
+
+  }
+
+}
+
+// Create a new GrAFunDummy
+GrAFunDummy* GrAFunCreateDummy(void) {
+
+  // Declare the new GrAFun
+  GrAFunDummy* that =
+    PBErrMalloc(
+      GradAutomatonErr,
+      sizeof(GrAFunDummy));
+
+  // Set properties
+  that->grAFun = GrAFunCreateStatic(GrAFunTypeDummy);
+
+  // Return the new GrAFun
+  return that;
+
+}
+
+// Free the memory used by the GrAFunDummy 'that'
+void _GrAFunDummyFree(GrAFunDummy** that) {
+
+  // If that is null
+  if (that == NULL || *that == NULL) {
+
+    // Do nothing
+    return;
+
+  }
+
+  // Free memory
+  _GrAFunFreeStatic((GrAFun*)(*that));
+  free(*that);
+  *that = NULL;
+
+}

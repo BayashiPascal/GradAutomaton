@@ -100,17 +100,23 @@ VecFloat* _GrACellFloatPrevStatus(const GrACellFloat* const that);
 
 #define GrACellSwitchStatus(G) _Generic(G, \
   GrACellShort*: _GrACellShortSwitchStatus, \
+  const GrACellShort*: _GrACellShortSwitchStatus, \
   GrACellFloat*: _GrACellFloatSwitchStatus, \
+  const GrACellFloat*: _GrACellFloatSwitchStatus, \
   default: PBErrInvalidPolymorphism)(G)
 
 #define GrACellCurStatus(G) _Generic(G, \
   GrACellShort*: _GrACellShortCurStatus, \
+  const GrACellShort*: _GrACellShortCurStatus, \
   GrACellFloat*: _GrACellFloatCurStatus, \
+  const GrACellFloat*: _GrACellFloatCurStatus, \
   default: PBErrInvalidPolymorphism)(G)
 
 #define GrACellPrevStatus(G) _Generic(G, \
   GrACellShort*: _GrACellShortPrevStatus, \
+  const GrACellShort*: _GrACellShortPrevStatus, \
   GrACellFloat*: _GrACellFloatPrevStatus, \
+  const GrACellFloat*: _GrACellFloatPrevStatus, \
   default: PBErrInvalidPolymorphism)(G)
 
 // -------------- GrAFun
@@ -119,9 +125,59 @@ VecFloat* _GrACellFloatPrevStatus(const GrACellFloat* const that);
 
 // ================= Data structure ===================
 
+typedef enum GrAFunType {
+
+  GrAFunTypeDummy
+
+} GrAFunType;
+
+typedef struct GrAFun {
+
+  // Type of GrAFun
+  GrAFunType type;
+
+} GrAFun;
+
+typedef struct GrAFunDummy {
+
+  // GrAFun
+  GrAFun grAFun;
+
+} GrAFunDummy;
+
 // ================ Functions declaration ====================
 
+// Create a static GrAFun with type 'type'
+GrAFun GrAFunCreateStatic(const GrAFunType type);
+
+// Free the memory used by the GrAFun 'that'
+void _GrAFunFreeStatic(GrAFun* that);
+
+// Create a new GrAFunDummy
+GrAFunDummy* GrAFunCreateDummy(void);
+
+// Free the memory used by the GrAFunDummy 'that'
+void _GrAFunDummyFree(GrAFunDummy** that);
+
+// Return the type of the GrAFun 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrAFunType _GrAFunGetType(const GrAFun* const that);
+
 // ================= Polymorphism ==================
+
+#define GrAFunFree(G) _Generic(G, \
+  GrAFun*: _GrAFunFreeStatic, \
+  GrAFunDummy**: _GrAFunDummyFree, \
+  default: PBErrInvalidPolymorphism)((G))
+
+#define GrAFunGetType(G) _Generic(G, \
+  GrAFun*: _GrAFunGetType, \
+  const GrAFun*: _GrAFunGetType, \
+  GrAFunDummy*: _GrAFunGetType, \
+  const GrAFunDummy*: _GrAFunGetType, \
+  default: PBErrInvalidPolymorphism)((const GrAFun*)(G))
 
 // -------------- GradAutomaton
 
