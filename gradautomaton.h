@@ -185,9 +185,78 @@ GrAFunType _GrAFunGetType(const GrAFun* const that);
 
 // ================= Data structure ===================
 
+typedef enum GradAutomatonType {
+
+  GradAutomatonTypeDummy
+
+} GradAutomatonType;
+
+typedef struct GradAutomaton {
+
+  // Type of the GradAutomaton
+  GradAutomatonType type;
+
+  // Dimension of the status vector of each cell
+  long dim;
+
+  // Grad
+  Grad* grad;
+
+  // GrAFun
+  GrAFun* fun;
+
+} GradAutomaton;
+
+// GradSquare (2x2, no diag), GraFunDummy, GrACellShort dimension 1
+typedef struct GradAutomatonDummy {
+
+  // Parent GradAutomaton
+  GradAutomaton gradAutomaton;
+
+} GradAutomatonDummy;
+
 // ================ Functions declaration ====================
 
+// Create a new static GradAutomaton
+GradAutomaton GradAutomatonCreateStatic(
+  const GradAutomatonType type,
+  Grad* const grad,
+  GrAFun* const fun);
+
+// Create a new GradAutomatonDummy
+GradAutomatonDummy* GradAutomatonCreateDummy();
+
+// Free the memory used by the GradAutomatonDummy 'that'
+void GradAutomatonDummyFree(GradAutomatonDummy** that);
+
+// Step the GradAutomatonDummyStep
+void _GradAutomatonDummyStep(GradAutomatonDummy* const that);
+
+// Return the Grad of the GradAutomatonDummy 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GradSquare* _GradAutomatonDummyGrad(GradAutomatonDummy* const that);
+
+// Return the GrAFun of the GradAutomatonDummy 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrAFunDummy* _GradAutomatonDummyFun(GradAutomatonDummy* const that);
+
 // ================= Polymorphism ==================
+
+#define GradAutomatonStep(G) _Generic(G, \
+  GradAutomatonDummy* : _GradAutomatonDummyStep, \
+  default: PBErrInvalidPolymorphism)(G)
+
+#define GradAutomatonGrad(G) _Generic(G, \
+  GradAutomatonDummy* : _GradAutomatonDummyGrad, \
+  default: PBErrInvalidPolymorphism)(G)
+
+#define GradAutomatonFun(G) _Generic(G, \
+  GradAutomatonDummy* : _GradAutomatonDummyFun, \
+  default: PBErrInvalidPolymorphism)(G)
 
 // ================ static inliner ====================
 

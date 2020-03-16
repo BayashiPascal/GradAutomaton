@@ -245,10 +245,93 @@ void UnitTestGrAFun(void) {
 
 }
 
+void UnitTestGradAutomatonDummyCreateFree(void) {
+
+  GradAutomatonDummy* ga = GradAutomatonCreateDummy();
+  if (
+    ga == NULL ||
+    ga->gradAutomaton.grad == NULL ||
+    ga->gradAutomaton.fun == NULL ||
+    ga->gradAutomaton.type != GradAutomatonTypeDummy) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonCreateDummy failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GradAutomatonDummyFree(&ga);
+  if (ga != NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonDummyFree failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  printf("UnitTestGradAutomatonDummyCreateFree OK\n");
+
+}
+
+void UnitTestGradAutomatonDummyGet(void) {
+
+  GradAutomatonDummy* ga = GradAutomatonCreateDummy();
+  if (GradAutomatonGrad(ga) != (GradSquare*)(ga->gradAutomaton.grad)) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonDummyGetGrad failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (GradAutomatonFun(ga) != (GrAFunDummy*)(ga->gradAutomaton.fun)) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonDummyGetFun failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GradAutomatonDummyFree(&ga);
+
+  printf("UnitTestGradAutomatonDummyGet OK\n");
+
+}
+
+void UnitTestGradAutomatonDummyStep(void) {
+
+  GradAutomatonDummy* ga = GradAutomatonCreateDummy();
+
+  GradAutomatonStep(ga);
+
+  GradAutomatonDummyFree(&ga);
+
+  printf("UnitTestGradAutomatonDummyStep OK\n");
+
+}
+
+void UnitTestGradAutomatonDummy(void) {
+
+  UnitTestGradAutomatonDummyCreateFree();
+  UnitTestGradAutomatonDummyGet();
+  UnitTestGradAutomatonDummyStep();
+  printf("UnitTestGrACell OK\n");
+
+}
+
 void UnitTestAll(void) {
 
   UnitTestGrACell();
   UnitTestGrAFun();
+  UnitTestGradAutomatonDummy();
   printf("UnitTestAll OK\n");
 
 }

@@ -168,3 +168,55 @@ GrAFunType _GrAFunGetType(const GrAFun* const that) {
   return that->type;
 
 }
+
+// -------------- GradAutomaton
+
+// ================ Functions implementation ====================
+
+// Return the Grad of the GradAutomatonDummy 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GradSquare* _GradAutomatonDummyGrad(GradAutomatonDummy* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Return the Grad
+  return ((GradSquare*)((GradAutomaton*)that)->grad);
+
+}
+
+// Return the GrAFun of the GradAutomatonDummy 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrAFunDummy* _GradAutomatonDummyFun(GradAutomatonDummy* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Return the GrAFun
+  return ((GrAFunDummy*)((GradAutomaton*)that)->fun);
+
+}
