@@ -179,11 +179,153 @@ void UnitTestGrACellCurPrevStatus(void) {
 
 }
 
+void UnitTestGrACellGetSet(void) {
+
+  int dim = 1;
+  GrACellShort* cellShort = GrACellCreateShort(dim);
+  GrACellSetCurStatus(
+    cellShort,
+    0,
+    1);
+  short curStatusS =
+    VecGet(
+      GrACellCurStatus(cellShort),
+      0);
+  if (curStatusS != 1) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrACellShortSetCurStatus failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  curStatusS =
+    GrACellGetCurStatus(
+      cellShort,
+      0);
+  if (curStatusS != 1) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrACellShortGetCurStatus failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrACellSetPrevStatus(
+    cellShort,
+    0,
+    1);
+  short prevStatusS =
+    VecGet(
+      GrACellPrevStatus(cellShort),
+      0);
+  if (prevStatusS != 1) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrACellShortSetPrevStatus failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  prevStatusS =
+    GrACellGetPrevStatus(
+      cellShort,
+      0);
+  if (prevStatusS != 1) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrACellShortGetPrevStatus failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrACellFree(&cellShort);
+
+  GrACellFloat* cellFloat = GrACellCreateFloat(dim);
+  GrACellSetCurStatus(
+    cellFloat,
+    0,
+    1);
+  float curStatusF =
+    VecGet(
+      GrACellCurStatus(cellFloat),
+      0);
+  if (curStatusF != 1) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrACellFloatSetCurStatus failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  curStatusF =
+    GrACellGetCurStatus(
+      cellFloat,
+      0);
+  if (curStatusF != 1) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrACellFloatGetCurStatus failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrACellSetPrevStatus(
+    cellFloat,
+    0,
+    1);
+  float prevStatusF =
+    VecGet(
+      GrACellPrevStatus(cellFloat),
+      0);
+  if (prevStatusF != 1) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrACellFloatSetPrevStatus failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  prevStatusF =
+    GrACellGetPrevStatus(
+      cellFloat,
+      0);
+  if (prevStatusF != 1) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrACellFloatGetPrevStatus failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrACellFree(&cellFloat);
+
+  printf("UnitTestGrACellCurGetSet OK\n");
+
+}
+
 void UnitTestGrACell(void) {
 
   UnitTestGrACellCreateFree();
   UnitTestGrACellSwitchStatus();
   UnitTestGrACellCurPrevStatus();
+  UnitTestGrACellGetSet();
   printf("UnitTestGrACell OK\n");
 
 }

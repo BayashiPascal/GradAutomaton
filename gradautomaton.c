@@ -122,6 +122,12 @@ void _GrAFunFreeStatic(GrAFun* that) {
 
 }
 
+// -------------- GrAFunDummy
+
+// ================ Functions declaration ====================
+
+// ================ Functions implementation ====================
+
 // Create a new GrAFunDummy
 GrAFunDummy* GrAFunCreateDummy(void) {
 
@@ -141,6 +147,49 @@ GrAFunDummy* GrAFunCreateDummy(void) {
 
 // Free the memory used by the GrAFunDummy 'that'
 void _GrAFunDummyFree(GrAFunDummy** that) {
+
+  // If that is null
+  if (that == NULL || *that == NULL) {
+
+    // Do nothing
+    return;
+
+  }
+
+  // Free memory
+  _GrAFunFreeStatic((GrAFun*)(*that));
+  free(*that);
+  *that = NULL;
+
+}
+
+// -------------- GrAFunWolframOriginal
+
+// ================ Functions declaration ====================
+
+// ================ Functions implementation ====================
+
+// Create a new GrAFunWolframOriginal
+GrAFunWolframOriginal* GrAFunCreateWolframOriginal(
+  const unsigned char rule) {
+
+  // Declare the new GrAFun
+  GrAFunWolframOriginal* that =
+    PBErrMalloc(
+      GradAutomatonErr,
+      sizeof(GrAFunWolframOriginal));
+
+  // Set properties
+  that->grAFun = GrAFunCreateStatic(GrAFunTypeWolframOriginal);
+  that->rule = rule;
+
+  // Return the new GrAFun
+  return that;
+
+}
+
+// Free the memory used by the GrAFunWolframOriginal 'that'
+void _GrAFunWolframOriginalFree(GrAFunWolframOriginal** that) {
 
   // If that is null
   if (that == NULL || *that == NULL) {
@@ -200,6 +249,8 @@ GradAutomaton GradAutomatonCreateStatic(
   return that;
 
 }
+
+// ------------- GradAutomatonDummy
 
 // Create a new GradAutomatonDummy
 GradAutomatonDummy* GradAutomatonCreateDummy() {
@@ -305,6 +356,156 @@ void GradAutomatonDummyFree(GradAutomatonDummy** that) {
 
 // Step the GradAutomatonDummyStep
 void _GradAutomatonDummyStep(GradAutomatonDummy* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  (void)that;
+
+}
+
+// ------------- GradAutomatonWolframOriginal
+
+// Create a new GradAutomatonWolframOriginal
+GradAutomatonWolframOriginal* GradAutomatonCreateWolframOriginal(
+  const unsigned char rule,
+  const unsigned long size) {
+
+  // Allocate memory for the new GradAutomatonWolframOriginal
+  GradAutomatonWolframOriginal* that =
+    PBErrMalloc(
+      GradAutomatonErr,
+      sizeof(GradAutomatonWolframOriginal));
+
+  // Create the associated Grad and GrAFun
+  bool diagLink = false;
+  VecShort2D dim = VecShortCreateStatic2D();
+  VecSet(
+    &dim,
+    0,
+    size);
+  VecSet(
+    &dim,
+    1,
+    1);
+  Grad* grad =
+    (Grad*)GradSquareCreate(
+      &dim,
+      diagLink);
+  GrAFun* fun = (GrAFun*)GrAFunCreateWolframOriginal(rule);
+
+  // Initialize the properties
+  that->gradAutomaton =
+    GradAutomatonCreateStatic(
+      GradAutomatonTypeWolframOriginal,
+      grad,
+      fun);
+
+  // Declare a variable to memorize the index of the cell
+  unsigned long index = 0;
+
+  // Add a GrACell to each cell of the Grad
+  VecShort2D pos = VecShortCreateStatic2D();
+  bool flag = true;
+  do {
+
+    GradCell* cell =
+      GradCellAt(
+        grad,
+        &pos);
+
+    GrACellShort* cellStatus =
+      GrACellCreateShort(1);
+
+    // If it's the cell in the center of the Grad
+    if (index == size / 2) {
+
+      // Initialise the cell value to 1
+      GrACellSetPrevStatus(
+        cellStatus,
+        0,
+        1);
+      GrACellSetCurStatus(
+        cellStatus,
+        0,
+        1);
+
+    }
+
+    GradCellSetData(
+      cell,
+      cellStatus);
+
+    // Increment the index of the cell
+    ++index;
+
+    // Move the position to the next cell in the Grad
+    flag =
+      VecStep(
+        &pos,
+        &dim);
+
+  } while(flag);
+
+  // Return the new GradAutomatonWolframOriginal
+  return that;
+
+}
+
+// Free the memory used by the GradAutomatonWolframOriginal 'that'
+void GradAutomatonWolframOriginalFree(GradAutomatonWolframOriginal** that) {
+
+  // If that is null
+  if (that == NULL || *that == NULL) {
+
+    // Do nothing
+    return;
+
+  }
+
+  // Free the GrACell attached to the cells of the Grad
+  VecShort2D pos = VecShortCreateStatic2D();
+  bool flag = true;
+  do {
+
+    GradCell* cell =
+      GradCellAt(
+        GradAutomatonGrad(*that),
+        &pos);
+
+    GrACellShort* cellStatus = GradCellData(cell);
+
+    GrACellFree(&cellStatus);
+
+    flag =
+      VecStep(
+        &pos,
+        GradDim(GradAutomatonGrad(*that)));
+
+  } while(flag);
+
+  // Free memory
+  GradSquareFree((GradSquare**)&((*that)->gradAutomaton.grad));
+  _GrAFunWolframOriginalFree(
+    (GrAFunWolframOriginal**)&((*that)->gradAutomaton.fun));
+  free(*that);
+  *that = NULL;
+
+}
+
+// Step the GradAutomatonWolframOriginalStep
+void _GradAutomatonWolframOriginalStep(
+  GradAutomatonWolframOriginal* const that) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
