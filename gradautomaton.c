@@ -13,8 +13,27 @@
 
 // ================ Functions implementation ====================
 
+// Create a new static GrACell
+GrACell GradAutomatonCellCreateStatic(
+  GradCell* const gradCell) {
+
+  // Create the new GradAutomatonCell
+  GrACell cell;
+
+  // Set the properties
+  cell.curStatus = 0;
+  cell.gradCell = gradCell;
+
+  // Return the new GradAutomatonCell
+  return cell;
+
+}
+
 // Create a new GrACellShort with a status vector of dimension 'dim'
-GrACellShort* GrACellCreateShort(const long dim) {
+// for the GradCell 'gradCell'
+GrACellShort* GrACellCreateShort(
+  const long dim,
+  GradCell* const gradCell) {
 
   // Allocate memory
   GrACellShort* that =
@@ -25,7 +44,7 @@ GrACellShort* GrACellCreateShort(const long dim) {
   // Initialise properties
   that->status[0] = VecShortCreate(dim);
   that->status[1] = VecShortCreate(dim);
-  that->curStatus = 0;
+  that->gradAutomatonCell = GradAutomatonCellCreateStatic(gradCell);
 
   // Return the new GrACellShort
   return that;
@@ -33,7 +52,10 @@ GrACellShort* GrACellCreateShort(const long dim) {
 }
 
 // Create a new GrACellFloat with a status vector of dimension 'dim'
-GrACellFloat* GrACellCreateFloat(const long dim) {
+// for the GradCell 'gradCell'
+GrACellFloat* GrACellCreateFloat(
+  const long dim,
+  GradCell* const gradCell) {
 
   // Allocate memory
   GrACellFloat* that =
@@ -44,7 +66,7 @@ GrACellFloat* GrACellCreateFloat(const long dim) {
   // Initialise properties
   that->status[0] = VecFloatCreate(dim);
   that->status[1] = VecFloatCreate(dim);
-  that->curStatus = 0;
+  that->gradAutomatonCell = GradAutomatonCellCreateStatic(gradCell);
 
   // Return the new GrACellFloat
   return that;
@@ -206,6 +228,121 @@ void _GrAFunWolframOriginalFree(GrAFunWolframOriginal** that) {
 
 }
 
+// Apply the step function for the GrAFunWolframOriginal 'that'
+// to the GrACellShort 'cell' in the GradSquare 'grad'
+void _GrAFunWolframOriginalApply(
+  GrAFunWolframOriginal* const that,
+  GradSquare* const grad,
+  GrACellShort* const cell) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (grad == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'grad' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (cell == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'cell' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Declare a variable to memorize the current status of the
+  // cell and its neighbour
+  short status[3] = {0, 0, 0};
+
+  // Get the current status of the left cell
+  int leftLink =
+    GradCellGetLink(
+      GrACellGradCell(cell),
+      GradSquareDirW);
+  if (leftLink != -1) {
+
+    GradCell* leftNeighbour =
+      GradCellNeighbour(
+        grad,
+        GrACellGradCell(cell),
+        GradSquareDirW);
+    GrACellShort* leftCell =
+      (GrACellShort*)GradCellData(leftNeighbour);
+    status[0] =
+      VecGet(
+        GrACellCurStatus(leftCell),
+        0);
+
+  }
+
+  // Get the current status of the cell
+  status[1] =
+    VecGet(
+      GrACellCurStatus(cell),
+      0);
+
+  // Get the current status of the right cell
+  int rightLink =
+    GradCellGetLink(
+      GrACellGradCell(cell),
+      GradSquareDirE);
+  if (rightLink != -1) {
+
+    GradCell* rightNeighbour =
+      GradCellNeighbour(
+        grad,
+        GrACellGradCell(cell),
+        GradSquareDirE);
+    GrACellShort* rightCell =
+      (GrACellShort*)GradCellData(rightNeighbour);
+    status[2] =
+      VecGet(
+        GrACellCurStatus(rightCell),
+        0);
+
+  }
+
+  // Get the corresponding mask in the rule
+  unsigned char mask =
+    powi(
+      2,
+      ((status[0] * 2) + status[1]) * 2 + status[2]);
+
+  // Get the new status of the cell
+  short newStatus = 0;
+  if (GrAFunWolFramOriginalGetRule(that) & mask) {
+
+    newStatus = 1;
+
+  }
+
+  // Update the previous status with the new status
+  // (it will be switch later)
+  GrACellSetPrevStatus(
+    cell,
+    0,
+    newStatus);
+
+}
+
 // ------------- GradAutomaton
 
 // Create a new static GradAutomaton
@@ -247,6 +384,43 @@ GradAutomaton GradAutomatonCreateStatic(
 
   // Return the new GradAutomaton
   return that;
+
+}
+
+// Switch the status of all the cells of the GradAutomaton 'that'
+void _GradAutomatonSwitchAllStatus(GradAutomaton* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the number of cells in the grad
+  int nbCell = GradGetArea(GradAutomatonGrad(that));
+
+  // Loop on the cell
+  for (
+    int iCell = nbCell;
+    iCell--;) {
+
+    // Get the cell
+    GrACell* cell =
+      GradAutomatonCell(
+        that,
+        iCell);
+
+    // Switch the status of the cell
+    GrACellSwitchStatus(cell);
+
+  }
 
 }
 
@@ -295,8 +469,11 @@ GradAutomatonDummy* GradAutomatonCreateDummy() {
         grad,
         &pos);
 
+    long dimStatus = 1;
     GrACellShort* cellStatus =
-      GrACellCreateShort(1);
+      GrACellCreateShort(
+        dimStatus,
+        cell);
 
     GradCellSetData(
       cell,
@@ -424,21 +601,26 @@ GradAutomatonWolframOriginal* GradAutomatonCreateWolframOriginal(
         grad,
         &pos);
 
+    long dimStatus = 1;
     GrACellShort* cellStatus =
-      GrACellCreateShort(1);
+      GrACellCreateShort(
+        dimStatus,
+        cell);
 
     // If it's the cell in the center of the Grad
     if (index == size / 2) {
 
       // Initialise the cell value to 1
+      long iStatus = 0;
+      short val = 1;
       GrACellSetPrevStatus(
         cellStatus,
-        0,
-        1);
+        iStatus,
+        val);
       GrACellSetCurStatus(
         cellStatus,
-        0,
-        1);
+        iStatus,
+        val);
 
     }
 
@@ -520,6 +702,97 @@ void _GradAutomatonWolframOriginalStep(
 
 #endif
 
-  (void)that;
+  // Get the number of cells in the grad
+  int nbCell = GradGetArea(GradAutomatonGrad(that));
+
+  // Loop on the cell
+  for (
+    int iCell = nbCell;
+    iCell--;) {
+
+    // Get the cell
+    GrACellShort* cell =
+      GradAutomatonCell(
+        that,
+        iCell);
+
+    // Apply the step function to the cell
+    GrAFunApply(
+      GradAutomatonFun(that),
+      GradAutomatonGrad(that),
+      cell);
+
+  }
+
+  // Switch all the cells
+  GradAutomatonSwitchAllStatus(that);
+
+}
+
+// Print the GradAutomatonWolframOriginal 'that' on the FILE 'stream'
+void _GradAutomatonWolframOriginalPrintln(
+  GradAutomatonWolframOriginal* const that,
+  FILE* stream) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (stream == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'stream' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the number of cells in the grad
+  int nbCell = GradGetArea(GradAutomatonGrad(that));
+
+  printf("[");
+
+  // Loop on the cell
+  for (
+    int iCell = 0;
+    iCell < nbCell;
+    ++iCell) {
+
+    // Get the cell
+    GrACellShort* cell =
+      GradAutomatonCell(
+        that,
+        iCell);
+
+    // Get the current status of the cell
+    short status =
+      VecGet(
+        GrACellCurStatus(cell),
+        0);
+
+    // Print the status
+    if (status == 0) {
+
+      printf(" ");
+
+    } else {
+
+      printf("█");
+
+    }
+
+  }
+
+  printf("]\n");
 
 }

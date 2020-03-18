@@ -13,12 +13,17 @@
 void UnitTestGrACellCreateFree(void) {
 
   int dim = 2;
-  GrACellShort* cellShort = GrACellCreateShort(dim);
+  GradCell gradCell;
+  GrACellShort* cellShort =
+    GrACellCreateShort(
+      dim,
+      &gradCell);
   if (
     cellShort == NULL ||
     VecGetDim(cellShort->status[0]) != dim ||
     VecGetDim(cellShort->status[1]) != dim ||
-    cellShort->curStatus != 0) {
+    cellShort->gradAutomatonCell.curStatus != 0 ||
+    cellShort->gradAutomatonCell.gradCell != &gradCell) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
@@ -39,12 +44,16 @@ void UnitTestGrACellCreateFree(void) {
 
   }
 
-  GrACellFloat* cellFloat = GrACellCreateFloat(dim);
+  GrACellFloat* cellFloat =
+    GrACellCreateFloat(
+      dim,
+      &gradCell);
   if (
     cellFloat == NULL ||
     VecGetDim(cellFloat->status[0]) != dim ||
     VecGetDim(cellFloat->status[1]) != dim ||
-    cellFloat->curStatus != 0) {
+    cellFloat->gradAutomatonCell.curStatus != 0 ||
+    cellFloat->gradAutomatonCell.gradCell != &gradCell) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
@@ -72,9 +81,12 @@ void UnitTestGrACellCreateFree(void) {
 void UnitTestGrACellSwitchStatus(void) {
 
   int dim = 2;
-  GrACellShort* cellShort = GrACellCreateShort(dim);
+  GrACellShort* cellShort =
+    GrACellCreateShort(
+      dim,
+      NULL);
   GrACellSwitchStatus(cellShort);
-  if (cellShort->curStatus != 1) {
+  if (cellShort->gradAutomatonCell.curStatus != 1) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
@@ -85,7 +97,7 @@ void UnitTestGrACellSwitchStatus(void) {
   }
 
   GrACellSwitchStatus(cellShort);
-  if (cellShort->curStatus != 0) {
+  if (cellShort->gradAutomatonCell.curStatus != 0) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
@@ -97,9 +109,12 @@ void UnitTestGrACellSwitchStatus(void) {
 
   GrACellFree(&cellShort);
 
-  GrACellFloat* cellFloat = GrACellCreateFloat(dim);
+  GrACellFloat* cellFloat =
+    GrACellCreateFloat(
+      dim,
+      NULL);
   GrACellSwitchStatus(cellFloat);
-  if (cellFloat->curStatus != 1) {
+  if (cellFloat->gradAutomatonCell.curStatus != 1) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
@@ -110,7 +125,7 @@ void UnitTestGrACellSwitchStatus(void) {
   }
 
   GrACellSwitchStatus(cellFloat);
-  if (cellFloat->curStatus != 0) {
+  if (cellFloat->gradAutomatonCell.curStatus != 0) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
@@ -129,7 +144,10 @@ void UnitTestGrACellSwitchStatus(void) {
 void UnitTestGrACellCurPrevStatus(void) {
 
   int dim = 2;
-  GrACellShort* cellShort = GrACellCreateShort(dim);
+  GrACellShort* cellShort =
+    GrACellCreateShort(
+      dim,
+      NULL);
   if (cellShort->status[0] != GrACellCurStatus(cellShort)) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
@@ -152,7 +170,10 @@ void UnitTestGrACellCurPrevStatus(void) {
 
   GrACellFree(&cellShort);
 
-  GrACellFloat* cellFloat = GrACellCreateFloat(dim);
+  GrACellFloat* cellFloat =
+    GrACellCreateFloat(
+      dim,
+      NULL);
   if (cellFloat->status[0] != GrACellCurStatus(cellFloat)) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
@@ -182,7 +203,11 @@ void UnitTestGrACellCurPrevStatus(void) {
 void UnitTestGrACellGetSet(void) {
 
   int dim = 1;
-  GrACellShort* cellShort = GrACellCreateShort(dim);
+  GradCell gradCell;
+  GrACellShort* cellShort =
+    GrACellCreateShort(
+      dim,
+      &gradCell);
   GrACellSetCurStatus(
     cellShort,
     0,
@@ -247,9 +272,22 @@ void UnitTestGrACellGetSet(void) {
 
   }
 
+  if (GrACellGradCell(cellShort) != &gradCell) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrACellShortGradCell failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
   GrACellFree(&cellShort);
 
-  GrACellFloat* cellFloat = GrACellCreateFloat(dim);
+  GrACellFloat* cellFloat =
+    GrACellCreateFloat(
+      dim,
+      &gradCell);
   GrACellSetCurStatus(
     cellFloat,
     0,
@@ -310,6 +348,16 @@ void UnitTestGrACellGetSet(void) {
     sprintf(
       GradAutomatonErr->_msg,
       "GrACellFloatGetPrevStatus failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (GrACellGradCell(cellFloat) != &gradCell) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrACellFloatGradCell failed");
     PBErrCatch(GradAutomatonErr);
 
   }
@@ -379,11 +427,100 @@ void UnitTestGrAFunDummyGetType(void) {
 
 }
 
-void UnitTestGrAFun(void) {
+void UnitTestGrAFunDummy(void) {
 
   UnitTestGrAFunDummyCreateFree();
   UnitTestGrAFunDummyGetType();
-  printf("UnitTestGrACell OK\n");
+  printf("UnitTestGrAFunDummy OK\n");
+
+}
+
+void UnitTestGrAFunWolframOriginalCreateFree(void) {
+
+  unsigned char rule = 42;
+  GrAFunWolframOriginal* fun = GrAFunCreateWolframOriginal(rule);
+  if (
+    fun == NULL ||
+    fun->grAFun.type != GrAFunTypeWolframOriginal ||
+    fun->rule != rule) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunCreateWolframOriginal failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrAFunFree(&fun);
+  if (fun != NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunFree failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  printf("UnitTestGrAFunWolframOriginalCreateFree OK\n");
+
+}
+
+void UnitTestGrAFunWolframOriginalGetType(void) {
+
+  unsigned char rule = 42;
+  GrAFunWolframOriginal* fun = GrAFunCreateWolframOriginal(rule);
+  if (GrAFunGetType(fun) != GrAFunTypeWolframOriginal) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunWolframOriginalGetType failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrAFunFree(&fun);
+
+  printf("UnitTestGrAFunWolframOriginalGetType OK\n");
+
+}
+
+void UnitTestGrAFunWolframOriginalGetRule(void) {
+
+  unsigned char rule = 42;
+  GrAFunWolframOriginal* fun = GrAFunCreateWolframOriginal(rule);
+  if (GrAFunWolFramOriginalGetRule(fun) != rule) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunWolframOriginalGetRule failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrAFunFree(&fun);
+
+  printf("UnitTestGrAFunWolframOriginalGetRule OK\n");
+
+}
+
+void UnitTestGrAFunWolframOriginal(void) {
+
+  UnitTestGrAFunWolframOriginalCreateFree();
+  UnitTestGrAFunWolframOriginalGetType();
+  UnitTestGrAFunWolframOriginalGetRule();
+  printf("UnitTestGrAFunWolframOriginal OK\n");
+
+}
+
+void UnitTestGrAFun(void) {
+
+  UnitTestGrAFunDummy();
+  UnitTestGrAFunWolframOriginal();
+  printf("UnitTestGrAFun OK\n");
 
 }
 
@@ -442,6 +579,69 @@ void UnitTestGradAutomatonDummyGet(void) {
 
   }
 
+  for (
+    int i = 0;
+    i < 4;
+    ++i) {
+
+    void* cellA =
+      GradAutomatonCell(
+        ga,
+        i);
+    void* cellB =
+      GradCellAt(
+        ga->gradAutomaton.grad,
+        i);
+    if (cellA != GradCellData(cellB)) {
+
+      GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(
+        GradAutomatonErr->_msg,
+        "GradAutomatonDummyCellIndex failed");
+      PBErrCatch(GradAutomatonErr);
+
+    }
+
+  }
+
+  VecShort2D dim = VecShortCreateStatic2D(2);
+  VecSet(
+    &dim,
+    0,
+    2);
+  VecSet(
+    &dim,
+    1,
+    2);
+  VecShort2D pos = VecShortCreateStatic2D(2);
+  bool flag = true;
+  do {
+
+    void* cellA =
+      GradAutomatonCell(
+        ga,
+        &pos);
+    void* cellB =
+      GradCellAt(
+        ga->gradAutomaton.grad,
+        &pos);
+    if (cellA != GradCellData(cellB)) {
+
+      GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(
+        GradAutomatonErr->_msg,
+        "GradAutomatonDummyCellPos failed");
+      PBErrCatch(GradAutomatonErr);
+
+    }
+
+    flag =
+      VecStep(
+        &pos,
+        &dim);
+
+  } while(flag);
+
   GradAutomatonDummyFree(&ga);
 
   printf("UnitTestGradAutomatonDummyGet OK\n");
@@ -465,7 +665,185 @@ void UnitTestGradAutomatonDummy(void) {
   UnitTestGradAutomatonDummyCreateFree();
   UnitTestGradAutomatonDummyGet();
   UnitTestGradAutomatonDummyStep();
-  printf("UnitTestGrACell OK\n");
+  printf("UnitTestGradAutomatonDummy OK\n");
+
+}
+
+void UnitTestGradAutomatonWolframOriginalCreateFree(void) {
+
+  unsigned char rule = 42;
+  unsigned long size = 20;
+  GradAutomatonWolframOriginal* ga =
+    GradAutomatonCreateWolframOriginal(
+      rule,
+      size);
+  if (
+    ga == NULL ||
+    ga->gradAutomaton.grad == NULL ||
+    ga->gradAutomaton.fun == NULL ||
+    ga->gradAutomaton.type != GradAutomatonTypeWolframOriginal ||
+    ((GrAFunWolframOriginal*)(ga->gradAutomaton.fun))->rule != rule ||
+    ga->gradAutomaton.grad->_dim._val[0] != (long)size ||
+    ga->gradAutomaton.grad->_dim._val[1] != 1) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonCreateWolframOriginal failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GradAutomatonWolframOriginalFree(&ga);
+  if (ga != NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonWolframOriginalFree failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  printf("UnitTestGradAutomatonWolframOriginalCreateFree OK\n");
+
+}
+
+void UnitTestGradAutomatonWolframOriginalGet(void) {
+
+  unsigned char rule = 42;
+  unsigned long size = 20;
+  GradAutomatonWolframOriginal* ga =
+    GradAutomatonCreateWolframOriginal(
+      rule,
+      size);
+  if (GradAutomatonGrad(ga) != (GradSquare*)(ga->gradAutomaton.grad)) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonWolframOriginalGetGrad failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if ((void*)GradAutomatonFun(ga) != ga->gradAutomaton.fun) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonWolframOriginalGetFun failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  for (
+    int i = 0;
+    i < 4;
+    ++i) {
+
+    void* cellA =
+      GradAutomatonCell(
+        ga,
+        i);
+    void* cellB =
+      GradCellAt(
+        ga->gradAutomaton.grad,
+        i);
+    if (cellA != GradCellData(cellB)) {
+
+      GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(
+        GradAutomatonErr->_msg,
+        "GradAutomatonWolframOriginalCellIndex failed");
+      PBErrCatch(GradAutomatonErr);
+
+    }
+
+  }
+
+  VecShort2D dim = VecShortCreateStatic2D(2);
+  VecSet(
+    &dim,
+    0,
+    size);
+  VecSet(
+    &dim,
+    1,
+    1);
+  VecShort2D pos = VecShortCreateStatic2D(2);
+  bool flag = true;
+  do {
+
+    void* cellA =
+      GradAutomatonCell(
+        ga,
+        &pos);
+    void* cellB =
+      GradCellAt(
+        ga->gradAutomaton.grad,
+        &pos);
+    if (cellA != GradCellData(cellB)) {
+
+      GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(
+        GradAutomatonErr->_msg,
+        "GradAutomatonWolframOriginalCellPos failed");
+      PBErrCatch(GradAutomatonErr);
+
+    }
+
+    flag =
+      VecStep(
+        &pos,
+        &dim);
+
+  } while(flag);
+
+  GradAutomatonWolframOriginalFree(&ga);
+
+  printf("UnitTestGradAutomatonWolframOriginalGet OK\n");
+
+}
+
+void UnitTestGradAutomatonWolframOriginalStepPrintln(void) {
+
+  unsigned char rule = 30;
+  unsigned long size = 100;
+  GradAutomatonWolframOriginal* ga =
+    GradAutomatonCreateWolframOriginal(
+      rule,
+      size);
+
+  GradAutomatonPrintln(
+    ga,
+    stdout);
+
+  for (
+    unsigned long iStep = 0;
+    iStep < size;
+    ++iStep) {
+
+    GradAutomatonStep(ga);
+
+    GradAutomatonPrintln(
+      ga,
+      stdout);
+
+  }
+
+  GradAutomatonWolframOriginalFree(&ga);
+
+  printf("UnitTestGradAutomatonWolframOriginalStepPrintln OK\n");
+
+}
+
+void UnitTestGradAutomatonWolframOriginal(void) {
+
+  UnitTestGradAutomatonWolframOriginalCreateFree();
+  UnitTestGradAutomatonWolframOriginalGet();
+  UnitTestGradAutomatonWolframOriginalStepPrintln();
+  printf("UnitTestGradAutomatonWolframOriginal OK\n");
 
 }
 
@@ -474,6 +852,7 @@ void UnitTestAll(void) {
   UnitTestGrACell();
   UnitTestGrAFun();
   UnitTestGradAutomatonDummy();
+  UnitTestGradAutomatonWolframOriginal();
   printf("UnitTestAll OK\n");
 
 }

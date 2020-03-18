@@ -21,33 +21,53 @@
 
 // ================= Data structure ===================
 
-typedef struct GrACellShort {
-
-  // Double buffered status of the cell
-  VecShort* status[2];
+typedef struct GrACell {
 
   // Index of the current status of the cell
   unsigned char curStatus;
+
+  // Pointer toward the supporting GradCell
+  GradCell* gradCell;
+
+} GrACell;
+
+typedef struct GrACellShort {
+
+  // Parent GrACell
+  GrACell gradAutomatonCell;
+
+  // Double buffered status of the cell
+  VecShort* status[2];
 
 } GrACellShort;
 
 typedef struct GrACellFloat {
 
+  // Parent GrACell
+  GrACell gradAutomatonCell;
+
   // Double buffered status of the cell
   VecFloat* status[2];
-
-  // Index of the current status of the cell
-  unsigned char curStatus;
 
 } GrACellFloat;
 
 // ================ Functions declaration ====================
 
+// Create a new static GradAutomatonCell
+GrACell GradAutomatonCellCreateStatic(
+  GradCell* const gradCell);
+
 // Create a new GrACellShort with a status vector of dimension 'dim'
-GrACellShort* GrACellCreateShort(const long dim);
+// for the GradCell 'gradCell'
+GrACellShort* GrACellCreateShort(
+  const long dim,
+  GradCell* const gradCell);
 
 // Create a new GrACellFloat with a status vector of dimension 'dim'
-GrACellFloat* GrACellCreateFloat(const long dim);
+// for the GradCell 'gradCell'
+GrACellFloat* GrACellCreateFloat(
+  const long dim,
+  GradCell* const gradCell);
 
 // Free the memory used by the GrACellShort 'that'
 void _GrACellShortFree(GrACellShort** that);
@@ -55,17 +75,11 @@ void _GrACellShortFree(GrACellShort** that);
 // Free the memory used by the GrACellFloat 'that'
 void _GrACellFloatFree(GrACellFloat** that);
 
-// Switch the current status of the GrACellShort 'that'
+// Switch the current status of the GrACell 'that'
 #if BUILDMODE != 0
 static inline
 #endif
-void _GrACellShortSwitchStatus(GrACellShort* const that);
-
-// Switch the current status of the GrACellFloat 'that'
-#if BUILDMODE != 0
-static inline
-#endif
-void _GrACellFloatSwitchStatus(GrACellFloat* const that);
+void _GrACellSwitchStatus(GrACell* const that);
 
 // Return the current status of the GrACellShort 'that'
 #if BUILDMODE != 0
@@ -167,6 +181,18 @@ void _GrACellFloatSetCurStatus(
   const unsigned long iVal,
   const float val);
 
+// Return the GradCell of the GrACellShort 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GradCell* _GrACellShortGradCell(const GrACellShort* const that);
+
+// Return the GradCell of the GrACellFloat 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GradCell* _GrACellFloatGradCell(const GrACellFloat* const that);
+
 // ================= Polymorphism ==================
 
 #define GrACellFree(G) _Generic(G, \
@@ -175,11 +201,10 @@ void _GrACellFloatSetCurStatus(
   default: PBErrInvalidPolymorphism)(G)
 
 #define GrACellSwitchStatus(G) _Generic(G, \
-  GrACellShort*: _GrACellShortSwitchStatus, \
-  const GrACellShort*: _GrACellShortSwitchStatus, \
-  GrACellFloat*: _GrACellFloatSwitchStatus, \
-  const GrACellFloat*: _GrACellFloatSwitchStatus, \
-  default: PBErrInvalidPolymorphism)(G)
+  GrACell*: _GrACellSwitchStatus, \
+  GrACellShort*: _GrACellSwitchStatus, \
+  GrACellFloat*: _GrACellSwitchStatus, \
+  default: PBErrInvalidPolymorphism)((GrACell*)(G))
 
 #define GrACellCurStatus(G) _Generic(G, \
   GrACellShort*: _GrACellShortCurStatus, \
@@ -218,6 +243,13 @@ void _GrACellFloatSetCurStatus(
   GrACellShort*: _GrACellShortSetPrevStatus, \
   GrACellFloat*: _GrACellFloatSetPrevStatus, \
   default: PBErrInvalidPolymorphism)(G, I, V)
+
+#define GrACellGradCell(G) _Generic(G, \
+  GrACellShort*: _GrACellShortGradCell, \
+  const GrACellShort*: _GrACellShortGradCell, \
+  GrACellFloat*: _GrACellFloatGradCell, \
+  const GrACellFloat*: _GrACellFloatGradCell, \
+  default: PBErrInvalidPolymorphism)(G)
 
 // -------------- GrAFun
 
@@ -299,19 +331,40 @@ GrAFunWolframOriginal* GrAFunCreateWolframOriginal(
 // Free the memory used by the GrAFunWolframOriginal 'that'
 void _GrAFunWolframOriginalFree(GrAFunWolframOriginal** that);
 
+// Return the rule of the GrAFunWolframOriginal 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+unsigned char GrAFunWolFramOriginalGetRule(
+  GrAFunWolframOriginal* const that);
+
+// Apply the step function for the GrAFunWolframOriginal 'that'
+// to the GrACellShort 'cell' in the GradSquare 'grad'
+void _GrAFunWolframOriginalApply(
+  GrAFunWolframOriginal* const that,
+  GradSquare* const grad,
+  GrACellShort* const cell);
+
 // ================= Polymorphism ==================
 
 #define GrAFunFree(G) _Generic(G, \
   GrAFun*: _GrAFunFreeStatic, \
   GrAFunDummy**: _GrAFunDummyFree, \
-  default: PBErrInvalidPolymorphism)((G))
+  GrAFunWolframOriginal**: _GrAFunWolframOriginalFree, \
+  default: PBErrInvalidPolymorphism)(G)
 
 #define GrAFunGetType(G) _Generic(G, \
   GrAFun*: _GrAFunGetType, \
   const GrAFun*: _GrAFunGetType, \
   GrAFunDummy*: _GrAFunGetType, \
   const GrAFunDummy*: _GrAFunGetType, \
+  GrAFunWolframOriginal*: _GrAFunGetType, \
+  const GrAFunWolframOriginal*: _GrAFunGetType, \
   default: PBErrInvalidPolymorphism)((const GrAFun*)(G))
+
+#define GrAFunApply(F, G, C) _Generic(F, \
+  GrAFunWolframOriginal*: _GrAFunWolframOriginalApply, \
+  default: PBErrInvalidPolymorphism)(F, G, C)
 
 // -------------- GradAutomaton
 
@@ -349,6 +402,32 @@ GradAutomaton GradAutomatonCreateStatic(
   const GradAutomatonType type,
   Grad* const grad,
   GrAFun* const fun);
+
+// Return the Grad of the GradAutomaton 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+Grad* _GradAutomatonGrad(GradAutomaton* const that);
+
+// Return the GrACellShort at position 'pos' for the
+// GradAutomaton 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACell* _GradAutomatonCellPos(
+  GradAutomaton* const that,
+  const VecShort2D* const pos);
+
+// Return the GrACellShort at index 'iCell' for the GradAutomaton 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACell* _GradAutomatonCellIndex(
+  GradAutomaton* const that,
+  const int iCell);
+
+// Switch the status of all the cells of the GradAutomaton 'that'
+void _GradAutomatonSwitchAllStatus(GradAutomaton* const that);
 
 // -------------- GradAutomatonDummy
 
@@ -393,6 +472,23 @@ static inline
 #endif
 GrAFunDummy* _GradAutomatonDummyFun(GradAutomatonDummy* const that);
 
+// Return the GrACellShort at position 'pos' for the
+// GradAutomatonDummy 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellShort* _GradAutomatonDummyCellPos(
+  GradAutomatonDummy* const that,
+  const VecShort2D* const pos);
+
+// Return the GrACellShort at index 'iCell' for the GradAutomatonDummy 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellShort* _GradAutomatonDummyCellIndex(
+  GradAutomatonDummy* const that,
+  const int iCell);
+
 // -------------- GradAutomatonWorlframOriginal
 
 // ================= Define ==================
@@ -436,7 +532,36 @@ static inline
 GrAFunWolframOriginal* _GradAutomatonWolframOriginalFun(
   GradAutomatonWolframOriginal* const that);
 
+// Return the GrACellShort at position 'pos' for the
+// GradAutomatonWolframOriginal 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellShort* _GradAutomatonWolframOriginalCellPos(
+  GradAutomatonWolframOriginal* const that,
+  const VecShort2D* const pos);
+
+// Return the GrACellShort at index 'iCell' for the
+// GradAutomatonWolframOriginal 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellShort* _GradAutomatonWolframOriginalCellIndex(
+  GradAutomatonWolframOriginal* const that,
+  const int iCell);
+
+// Print the GradAutomatonWolframOriginal 'that' on the FILE 'stream'
+void _GradAutomatonWolframOriginalPrintln(
+  GradAutomatonWolframOriginal* const that,
+  FILE* stream);
+
 // ================= Polymorphism ==================
+
+#define GradAutomatonSwitchAllStatus(G) _Generic(G, \
+  GradAutomaton* : _GradAutomatonSwitchAllStatus, \
+  GradAutomatonDummy* : _GradAutomatonSwitchAllStatus, \
+  GradAutomatonWolframOriginal* : _GradAutomatonSwitchAllStatus, \
+  default: PBErrInvalidPolymorphism)((GradAutomaton*)(G))
 
 #define GradAutomatonStep(G) _Generic(G, \
   GradAutomatonDummy* : _GradAutomatonDummyStep, \
@@ -444,6 +569,7 @@ GrAFunWolframOriginal* _GradAutomatonWolframOriginalFun(
   default: PBErrInvalidPolymorphism)(G)
 
 #define GradAutomatonGrad(G) _Generic(G, \
+  GradAutomaton* : _GradAutomatonGrad, \
   GradAutomatonDummy* : _GradAutomatonDummyGrad, \
   GradAutomatonWolframOriginal* : _GradAutomatonWolframOriginalGrad, \
   default: PBErrInvalidPolymorphism)(G)
@@ -452,6 +578,34 @@ GrAFunWolframOriginal* _GradAutomatonWolframOriginalFun(
   GradAutomatonDummy* : _GradAutomatonDummyFun, \
   GradAutomatonWolframOriginal* : _GradAutomatonWolframOriginalFun, \
   default: PBErrInvalidPolymorphism)(G)
+
+#define GradAutomatonCell(G, P) _Generic(G, \
+  GradAutomaton* : _Generic(P, \
+    VecShort2D*: _GradAutomatonCellPos, \
+    const VecShort2D*: _GradAutomatonCellPos, \
+    int: _GradAutomatonCellIndex, \
+    const int: _GradAutomatonCellIndex, \
+    default: PBErrInvalidPolymorphism), \
+  GradAutomatonDummy* : _Generic(P, \
+    VecShort2D*: _GradAutomatonDummyCellPos, \
+    const VecShort2D*: _GradAutomatonDummyCellPos, \
+    int: _GradAutomatonDummyCellIndex, \
+    const int: _GradAutomatonDummyCellIndex, \
+    default: PBErrInvalidPolymorphism), \
+  GradAutomatonWolframOriginal* : _Generic(P, \
+    VecShort2D*: _GradAutomatonWolframOriginalCellPos, \
+    const VecShort2D*: _GradAutomatonWolframOriginalCellPos, \
+    int: _GradAutomatonWolframOriginalCellIndex, \
+    const int: _GradAutomatonWolframOriginalCellIndex, \
+    default: PBErrInvalidPolymorphism), \
+  default: PBErrInvalidPolymorphism)(G, P)
+
+#define GradAutomatonPrintln(G, S) _Generic(G, \
+  GradAutomatonWolframOriginal* : \
+    _GradAutomatonWolframOriginalPrintln, \
+  const GradAutomatonWolframOriginal* :\
+    _GradAutomatonWolframOriginalPrintln, \
+  default: PBErrInvalidPolymorphism)(G, S)
 
 // ================ static inliner ====================
 

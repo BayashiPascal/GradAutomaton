@@ -4,34 +4,11 @@
 
 // ================ Functions implementation ====================
 
-// Switch the current status of the GrACellShort 'that'
+// Switch the current status of the GrACell 'that'
 #if BUILDMODE != 0
 static inline
 #endif
-void _GrACellShortSwitchStatus(GrACellShort* const that) {
-
-#if BUILDMODE == 0
-  if (that == NULL) {
-
-    GradAutomatonErr->_type = PBErrTypeNullPointer;
-    sprintf(
-      GradAutomatonErr->_msg,
-      "'that' is null");
-    PBErrCatch(GradAutomatonErr);
-
-  }
-
-#endif
-
-  that->curStatus = 1 - that->curStatus;
-
-}
-
-// Switch the current status of the GrACellFloat 'that'
-#if BUILDMODE != 0
-static inline
-#endif
-void _GrACellFloatSwitchStatus(GrACellFloat* const that) {
+void _GrACellSwitchStatus(GrACell* const that) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -69,7 +46,7 @@ VecShort* _GrACellShortCurStatus(const GrACellShort* const that) {
 
 #endif
 
-  return that->status[that->curStatus];
+  return that->status[that->gradAutomatonCell.curStatus];
 
 }
 
@@ -92,7 +69,7 @@ VecFloat* _GrACellFloatCurStatus(const GrACellFloat* const that) {
 
 #endif
 
-  return that->status[that->curStatus];
+  return that->status[that->gradAutomatonCell.curStatus];
 
 }
 
@@ -115,7 +92,7 @@ VecShort* _GrACellShortPrevStatus(const GrACellShort* const that) {
 
 #endif
 
-  return that->status[1 - that->curStatus];
+  return that->status[1 - that->gradAutomatonCell.curStatus];
 
 }
 
@@ -138,7 +115,7 @@ VecFloat* _GrACellFloatPrevStatus(const GrACellFloat* const that) {
 
 #endif
 
-  return that->status[1 - that->curStatus];
+  return that->status[1 - that->gradAutomatonCell.curStatus];
 
 }
 
@@ -374,6 +351,52 @@ void _GrACellFloatSetCurStatus(
 
 }
 
+// Return the GradCell of the GrACellShort 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GradCell* _GrACellShortGradCell(const GrACellShort* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  return that->gradAutomatonCell.gradCell;
+
+}
+
+// Return the GradCell of the GrACellFloat 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GradCell* _GrACellFloatGradCell(const GrACellFloat* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  return that->gradAutomatonCell.gradCell;
+
+}
+
 // -------------- GrAFun
 
 // ================ Functions implementation ====================
@@ -401,6 +424,137 @@ GrAFunType _GrAFunGetType(const GrAFun* const that) {
 
 }
 
+// -------------- GrAFunWolframOriginal
+
+// ================ Functions implementation ====================
+
+// Return the rule of the GrAFunWolframOriginal 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+unsigned char GrAFunWolFramOriginalGetRule(
+  GrAFunWolframOriginal* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  return that->rule;
+
+}
+
+// -------------- GradAutomaton
+
+// ================ Functions implementation ====================
+
+// Return the Grad of the GradAutomaton 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+Grad* _GradAutomatonGrad(GradAutomaton* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Return the Grad
+  return that->grad;
+
+}
+
+// Return the GrACellShort at position 'pos' for the
+// GradAutomaton 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACell* _GradAutomatonCellPos(
+  GradAutomaton* const that,
+  const VecShort2D* const pos) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (pos == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'pos' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the GradCell at the requested position
+  GradCell* cell =
+    GradCellAt(
+      GradAutomatonGrad(that),
+      pos);
+
+  // Return the GrACellShort associated to the cell
+  return (GrACell*)GradCellData(cell);
+
+}
+
+// Return the GrACellShort at index 'iCell' for the GradAutomaton 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACell* _GradAutomatonCellIndex(
+  GradAutomaton* const that,
+  const int iCell) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the GradCell at the requested position
+  GradCell* cell =
+    GradCellAt(
+      GradAutomatonGrad(that),
+      iCell);
+
+  // Return the GrACellShort associated to the cell
+  return (GrACell*)GradCellData(cell);
+
+}
+
 // -------------- GradAutomatonDummy
 
 // ================ Functions implementation ====================
@@ -425,7 +579,7 @@ GradSquare* _GradAutomatonDummyGrad(GradAutomatonDummy* const that) {
 #endif
 
   // Return the Grad
-  return ((GradSquare*)((GradAutomaton*)that)->grad);
+  return (GradSquare*)(((GradAutomaton*)that)->grad);
 
 }
 
@@ -449,7 +603,83 @@ GrAFunDummy* _GradAutomatonDummyFun(GradAutomatonDummy* const that) {
 #endif
 
   // Return the GrAFun
-  return ((GrAFunDummy*)((GradAutomaton*)that)->fun);
+  return (GrAFunDummy*)(((GradAutomaton*)that)->fun);
+
+}
+
+// Return the GrACellShort at position 'pos' for the
+// GradAutomatonDummy 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellShort* _GradAutomatonDummyCellPos(
+  GradAutomatonDummy* const that,
+  const VecShort2D* const pos) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (pos == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'pos' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the GradCell at the requested position
+  GradCell* cell =
+    GradCellAt(
+      GradAutomatonGrad(that),
+      pos);
+
+  // Return the GrACellShort associated to the cell
+  return (GrACellShort*)GradCellData(cell);
+
+}
+
+// Return the GrACellShort at index 'iCell' for the
+// GradAutomatonDummy 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellShort* _GradAutomatonDummyCellIndex(
+  GradAutomatonDummy* const that,
+  const int iCell) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the GradCell at the requested position
+  GradCell* cell =
+    GradCellAt(
+      GradAutomatonGrad(that),
+      iCell);
+
+  // Return the GrACellShort associated to the cell
+  return (GrACellShort*)GradCellData(cell);
 
 }
 
@@ -478,7 +708,7 @@ GradSquare* _GradAutomatonWolframOriginalGrad(
 #endif
 
   // Return the Grad
-  return ((GradSquare*)((GradAutomaton*)that)->grad);
+  return (GradSquare*)(((GradAutomaton*)that)->grad);
 
 }
 
@@ -503,6 +733,82 @@ GrAFunWolframOriginal* _GradAutomatonWolframOriginalFun(
 #endif
 
   // Return the GrAFun
-  return ((GrAFunWolframOriginal*)((GradAutomaton*)that)->fun);
+  return (GrAFunWolframOriginal*)(((GradAutomaton*)that)->fun);
+
+}
+
+// Return the GrACellShort at position 'pos' for the
+// GradAutomatonWolframOriginal 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellShort* _GradAutomatonWolframOriginalCellPos(
+  GradAutomatonWolframOriginal* const that,
+  const VecShort2D* const pos) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (pos == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'pos' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the GradCell at the requested position
+  GradCell* cell =
+    GradCellAt(
+      GradAutomatonGrad(that),
+      pos);
+
+  // Return the GrACellShort associated to the cell
+  return (GrACellShort*)GradCellData(cell);
+
+}
+
+// Return the GrACellShort at index 'iCell' for the
+// GradAutomatonWolframOriginal 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellShort* _GradAutomatonWolframOriginalCellIndex(
+  GradAutomatonWolframOriginal* const that,
+  const int iCell) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the GradCell at the requested position
+  GradCell* cell =
+    GradCellAt(
+      GradAutomatonGrad(that),
+      iCell);
+
+  // Return the GrACellShort associated to the cell
+  return (GrACellShort*)GradCellData(cell);
 
 }
