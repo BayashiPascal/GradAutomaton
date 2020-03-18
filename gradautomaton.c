@@ -32,7 +32,7 @@ GrACell GradAutomatonCellCreateStatic(
 // Create a new GrACellShort with a status vector of dimension 'dim'
 // for the GradCell 'gradCell'
 GrACellShort* GrACellCreateShort(
-  const long dim,
+       const long dim,
   GradCell* const gradCell) {
 
   // Allocate memory
@@ -54,7 +54,7 @@ GrACellShort* GrACellCreateShort(
 // Create a new GrACellFloat with a status vector of dimension 'dim'
 // for the GradCell 'gradCell'
 GrACellFloat* GrACellCreateFloat(
-  const long dim,
+       const long dim,
   GradCell* const gradCell) {
 
   // Allocate memory
@@ -232,8 +232,8 @@ void _GrAFunWolframOriginalFree(GrAFunWolframOriginal** that) {
 // to the GrACellShort 'cell' in the GradSquare 'grad'
 void _GrAFunWolframOriginalApply(
   GrAFunWolframOriginal* const that,
-  GradSquare* const grad,
-  GrACellShort* const cell) {
+             GradSquare* const grad,
+           GrACellShort* const cell) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -348,8 +348,8 @@ void _GrAFunWolframOriginalApply(
 // Create a new static GradAutomaton
 GradAutomaton GradAutomatonCreateStatic(
   const GradAutomatonType type,
-  Grad* const grad,
-  GrAFun* const fun) {
+              Grad* const grad,
+            GrAFun* const fun) {
 
 #if BUILDMODE == 0
   if (grad == NULL) {
@@ -645,7 +645,8 @@ GradAutomatonWolframOriginal* GradAutomatonCreateWolframOriginal(
 }
 
 // Free the memory used by the GradAutomatonWolframOriginal 'that'
-void GradAutomatonWolframOriginalFree(GradAutomatonWolframOriginal** that) {
+void GradAutomatonWolframOriginalFree(
+  GradAutomatonWolframOriginal** that) {
 
   // If that is null
   if (that == NULL || *that == NULL) {
@@ -732,7 +733,7 @@ void _GradAutomatonWolframOriginalStep(
 // Print the GradAutomatonWolframOriginal 'that' on the FILE 'stream'
 void _GradAutomatonWolframOriginalPrintln(
   GradAutomatonWolframOriginal* const that,
-  FILE* stream) {
+                                FILE* stream) {
 
 #if BUILDMODE == 0
   if (that == NULL) {

@@ -126,7 +126,7 @@ static inline
 #endif
 short _GrACellShortGetPrevStatus(
   const GrACellShort* const that,
-  const unsigned long iVal) {
+        const unsigned long iVal) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -154,7 +154,7 @@ static inline
 #endif
 float _GrACellFloatGetPrevStatus(
   const GrACellFloat* const that,
-  const unsigned long iVal) {
+        const unsigned long iVal) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -182,8 +182,8 @@ static inline
 #endif
 void _GrACellShortSetPrevStatus(
   const GrACellShort* const that,
-  const unsigned long iVal,
-  const short val) {
+        const unsigned long iVal,
+                const short val) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -212,8 +212,8 @@ static inline
 #endif
 void _GrACellFloatSetPrevStatus(
   const GrACellFloat* const that,
-  const unsigned long iVal,
-  const float val) {
+        const unsigned long iVal,
+                const float val) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -242,7 +242,7 @@ static inline
 #endif
 short _GrACellShortGetCurStatus(
   const GrACellShort* const that,
-  const unsigned long iVal) {
+        const unsigned long iVal) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -270,7 +270,7 @@ static inline
 #endif
 float _GrACellFloatGetCurStatus(
   const GrACellFloat* const that,
-  const unsigned long iVal) {
+        const unsigned long iVal) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -298,8 +298,8 @@ static inline
 #endif
 void _GrACellShortSetCurStatus(
   const GrACellShort* const that,
-  const unsigned long iVal,
-  const short val) {
+        const unsigned long iVal,
+                const short val) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -328,8 +328,8 @@ static inline
 #endif
 void _GrACellFloatSetCurStatus(
   const GrACellFloat* const that,
-  const unsigned long iVal,
-  const float val) {
+        const unsigned long iVal,
+                const float val) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -486,7 +486,7 @@ Grad* _GradAutomatonGrad(GradAutomaton* const that) {
 static inline
 #endif
 GrACell* _GradAutomatonCellPos(
-  GradAutomaton* const that,
+     GradAutomaton* const that,
   const VecShort2D* const pos) {
 
 #if BUILDMODE == 0
@@ -529,7 +529,7 @@ static inline
 #endif
 GrACell* _GradAutomatonCellIndex(
   GradAutomaton* const that,
-  const int iCell) {
+             const int iCell) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -614,7 +614,7 @@ static inline
 #endif
 GrACellShort* _GradAutomatonDummyCellPos(
   GradAutomatonDummy* const that,
-  const VecShort2D* const pos) {
+    const VecShort2D* const pos) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -657,7 +657,7 @@ static inline
 #endif
 GrACellShort* _GradAutomatonDummyCellIndex(
   GradAutomatonDummy* const that,
-  const int iCell) {
+                  const int iCell) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -744,7 +744,7 @@ static inline
 #endif
 GrACellShort* _GradAutomatonWolframOriginalCellPos(
   GradAutomatonWolframOriginal* const that,
-  const VecShort2D* const pos) {
+              const VecShort2D* const pos) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -787,7 +787,7 @@ static inline
 #endif
 GrACellShort* _GradAutomatonWolframOriginalCellIndex(
   GradAutomatonWolframOriginal* const that,
-  const int iCell) {
+                            const int iCell) {
 
 #if BUILDMODE == 0
   if (that == NULL) {

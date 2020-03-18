@@ -60,13 +60,13 @@ GrACell GradAutomatonCellCreateStatic(
 // Create a new GrACellShort with a status vector of dimension 'dim'
 // for the GradCell 'gradCell'
 GrACellShort* GrACellCreateShort(
-  const long dim,
+       const long dim,
   GradCell* const gradCell);
 
 // Create a new GrACellFloat with a status vector of dimension 'dim'
 // for the GradCell 'gradCell'
 GrACellFloat* GrACellCreateFloat(
-  const long dim,
+       const long dim,
   GradCell* const gradCell);
 
 // Free the memory used by the GrACellShort 'that'
@@ -112,7 +112,7 @@ static inline
 #endif
 short _GrACellShortGetPrevStatus(
   const GrACellShort* const that,
-  const unsigned long iVal);
+        const unsigned long iVal);
 
 // Return the 'iVal'-th value of the previous status of the
 // GrACellFloat 'that'
@@ -121,7 +121,7 @@ static inline
 #endif
 float _GrACellFloatGetPrevStatus(
   const GrACellFloat* const that,
-  const unsigned long iVal);
+        const unsigned long iVal);
 
 // Set the 'iVal'-th value of the previous status of the
 // GrACellShort 'that' to 'val'
@@ -130,8 +130,8 @@ static inline
 #endif
 void _GrACellShortSetPrevStatus(
   const GrACellShort* const that,
-  const unsigned long iVal,
-  const short val);
+        const unsigned long iVal,
+                const short val);
 
 // Set the 'iVal'-th value of the previous status of the
 // GrACellFloat 'that' to 'val'
@@ -140,8 +140,8 @@ static inline
 #endif
 void _GrACellFloatSetPrevStatus(
   const GrACellFloat* const that,
-  const unsigned long iVal,
-  const float val);
+        const unsigned long iVal,
+                const float val);
 
 // Return the 'iVal'-th value of the current status of the
 // GrACellShort 'that'
@@ -150,7 +150,7 @@ static inline
 #endif
 short _GrACellShortGetCurStatus(
   const GrACellShort* const that,
-  const unsigned long iVal);
+        const unsigned long iVal);
 
 // Return the 'iVal'-th value of the current status of the
 // GrACellFloat 'that'
@@ -159,7 +159,7 @@ static inline
 #endif
 float _GrACellFloatGetCurStatus(
   const GrACellFloat* const that,
-  const unsigned long iVal);
+        const unsigned long iVal);
 
 // Set the 'iVal'-th value of the current status of the
 // GrACellShort 'that' to 'val'
@@ -168,8 +168,8 @@ static inline
 #endif
 void _GrACellShortSetCurStatus(
   const GrACellShort* const that,
-  const unsigned long iVal,
-  const short val);
+        const unsigned long iVal,
+                const short val);
 
 // Set the 'iVal'-th value of the current status of the
 // GrACellFloat 'that' to 'val'
@@ -178,8 +178,8 @@ static inline
 #endif
 void _GrACellFloatSetCurStatus(
   const GrACellFloat* const that,
-  const unsigned long iVal,
-  const float val);
+        const unsigned long iVal,
+                const float val);
 
 // Return the GradCell of the GrACellShort 'that'
 #if BUILDMODE != 0
@@ -342,8 +342,8 @@ unsigned char GrAFunWolFramOriginalGetRule(
 // to the GrACellShort 'cell' in the GradSquare 'grad'
 void _GrAFunWolframOriginalApply(
   GrAFunWolframOriginal* const that,
-  GradSquare* const grad,
-  GrACellShort* const cell);
+             GradSquare* const grad,
+           GrACellShort* const cell);
 
 // ================= Polymorphism ==================
 
@@ -400,8 +400,8 @@ typedef struct GradAutomaton {
 // Create a new static GradAutomaton
 GradAutomaton GradAutomatonCreateStatic(
   const GradAutomatonType type,
-  Grad* const grad,
-  GrAFun* const fun);
+              Grad* const grad,
+            GrAFun* const fun);
 
 // Return the Grad of the GradAutomaton 'that'
 #if BUILDMODE != 0
@@ -415,7 +415,7 @@ Grad* _GradAutomatonGrad(GradAutomaton* const that);
 static inline
 #endif
 GrACell* _GradAutomatonCellPos(
-  GradAutomaton* const that,
+     GradAutomaton* const that,
   const VecShort2D* const pos);
 
 // Return the GrACellShort at index 'iCell' for the GradAutomaton 'that'
@@ -424,7 +424,7 @@ static inline
 #endif
 GrACell* _GradAutomatonCellIndex(
   GradAutomaton* const that,
-  const int iCell);
+             const int iCell);
 
 // Switch the status of all the cells of the GradAutomaton 'that'
 void _GradAutomatonSwitchAllStatus(GradAutomaton* const that);
@@ -448,8 +448,8 @@ typedef struct GradAutomatonDummy {
 // Create a new static GradAutomaton
 GradAutomaton GradAutomatonCreateStatic(
   const GradAutomatonType type,
-  Grad* const grad,
-  GrAFun* const fun);
+              Grad* const grad,
+            GrAFun* const fun);
 
 // Create a new GradAutomatonDummy
 GradAutomatonDummy* GradAutomatonCreateDummy();
@@ -479,7 +479,7 @@ static inline
 #endif
 GrACellShort* _GradAutomatonDummyCellPos(
   GradAutomatonDummy* const that,
-  const VecShort2D* const pos);
+    const VecShort2D* const pos);
 
 // Return the GrACellShort at index 'iCell' for the GradAutomatonDummy 'that'
 #if BUILDMODE != 0
@@ -487,7 +487,7 @@ static inline
 #endif
 GrACellShort* _GradAutomatonDummyCellIndex(
   GradAutomatonDummy* const that,
-  const int iCell);
+                  const int iCell);
 
 // -------------- GradAutomatonWorlframOriginal
 
@@ -539,7 +539,7 @@ static inline
 #endif
 GrACellShort* _GradAutomatonWolframOriginalCellPos(
   GradAutomatonWolframOriginal* const that,
-  const VecShort2D* const pos);
+              const VecShort2D* const pos);
 
 // Return the GrACellShort at index 'iCell' for the
 // GradAutomatonWolframOriginal 'that'
@@ -548,12 +548,12 @@ static inline
 #endif
 GrACellShort* _GradAutomatonWolframOriginalCellIndex(
   GradAutomatonWolframOriginal* const that,
-  const int iCell);
+                            const int iCell);
 
 // Print the GradAutomatonWolframOriginal 'that' on the FILE 'stream'
 void _GradAutomatonWolframOriginalPrintln(
   GradAutomatonWolframOriginal* const that,
-  FILE* stream);
+                                FILE* stream);
 
 // ================= Polymorphism ==================
 
