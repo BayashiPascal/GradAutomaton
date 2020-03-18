@@ -760,7 +760,9 @@ void _GradAutomatonWolframOriginalPrintln(
   // Get the number of cells in the grad
   int nbCell = GradGetArea(GradAutomatonGrad(that));
 
-  printf("[");
+  fprintf(
+    stream,
+    "[");
 
   // Loop on the cell
   for (
@@ -783,16 +785,22 @@ void _GradAutomatonWolframOriginalPrintln(
     // Print the status
     if (status == 0) {
 
-      printf(" ");
+      fprintf(
+        stream,
+        " ");
 
     } else {
 
-      printf("█");
+      fprintf(
+        stream,
+        "*");
 
     }
 
   }
 
-  printf("]\n");
+  fprintf(
+    stream,
+    "]\n");
 
 }
