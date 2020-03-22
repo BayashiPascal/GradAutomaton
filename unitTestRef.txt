@@ -10,6 +10,10 @@ UnitTestGrAFunWolframOriginalCreateFree OK
 UnitTestGrAFunWolframOriginalGetType OK
 UnitTestGrAFunWolframOriginalGetRule OK
 UnitTestGrAFunWolframOriginal OK
+UnitTestGrAFunNeuraNetCreateFree OK
+UnitTestGrAFunNeuraNetGetType OK
+UnitTestGrAFunNeuraNetNN OK
+UnitTestGrAFunNeuraNet OK
 UnitTestGrAFun OK
 UnitTestGradAutomatonDummyCreateFree OK
 UnitTestGradAutomatonDummyGet OK
@@ -120,4 +124,9 @@ UnitTestGradAutomatonWolframOriginalGet OK
 [* * * * * * * **      ******   ** *   * *    ****  * ****** * * **   * *    ** * *   * *   ******* *]
 UnitTestGradAutomatonWolframOriginalStepPrintln OK
 UnitTestGradAutomatonWolframOriginal OK
+UnitTestGradAutomatonNeuraNetCreateFree OK
+UnitTestGradAutomatonNeuraNetGet OK
+UnitTestGradAutomatonNeuraNetStep OK
+UnitTestGradAutomatonNeuraNet OK
+UnitTestGradAutomaton OK
 UnitTestAll OK

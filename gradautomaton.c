@@ -273,7 +273,7 @@ void _GrAFunWolframOriginalApply(
   short status[3] = {0, 0, 0};
 
   // Get the current status of the left cell
-  int leftLink =
+  long leftLink =
     GradCellGetLink(
       GrACellGradCell(cell),
       GradSquareDirW);
@@ -300,7 +300,7 @@ void _GrAFunWolframOriginalApply(
       0);
 
   // Get the current status of the right cell
-  int rightLink =
+  long rightLink =
     GradCellGetLink(
       GrACellGradCell(cell),
       GradSquareDirE);
@@ -328,7 +328,7 @@ void _GrAFunWolframOriginalApply(
 
   // Get the new status of the cell
   short newStatus = 0;
-  if (GrAFunWolFramOriginalGetRule(that) & mask) {
+  if (GrAFunWolframOriginalGetRule(that) & mask) {
 
     newStatus = 1;
 
@@ -340,6 +340,193 @@ void _GrAFunWolframOriginalApply(
     cell,
     0,
     newStatus);
+
+}
+
+// -------------- GrAFunNeuraNet
+
+// ================ Functions declaration ====================
+
+// ================ Functions implementation ====================
+
+// Create a new GrAFunNeuraNet
+GrAFunNeuraNet* GrAFunCreateNeuraNet(
+  NeuraNet* const nn) {
+
+  // Declare the new GrAFun
+  GrAFunNeuraNet* that =
+    PBErrMalloc(
+      GradAutomatonErr,
+      sizeof(GrAFunNeuraNet));
+
+  // Set properties
+  that->grAFun = GrAFunCreateStatic(GrAFunTypeNeuraNet);
+  that->nn = nn;
+
+  // Return the new GrAFun
+  return that;
+
+}
+
+// Free the memory used by the GrAFunNeuraNet 'that'
+void _GrAFunNeuraNetFree(GrAFunNeuraNet** that) {
+
+  // If that is null
+  if (that == NULL || *that == NULL) {
+
+    // Do nothing
+    return;
+
+  }
+
+  // Free memory
+  _GrAFunFreeStatic((GrAFun*)(*that));
+  free(*that);
+  *that = NULL;
+
+}
+
+// Apply the step function for the GrAFunNeuraNet 'that'
+// to the GrACellShort 'cell' in the GradSquare 'grad'
+void _GrAFunNeuraNetApply(
+  GrAFunNeuraNet* const that,
+            Grad* const grad,
+    GrACellFloat* const cell) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (grad == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'grad' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (cell == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'cell' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the number of links of the cell
+  int nbLinks = GradCellGetNbLink(GrACellGradCell(cell));
+
+  // Get the dimension of the input vector for the NeuraNet
+  long dimInput = (nbLinks + 1) * VecGetDim(GrACellCurStatus(cell));
+
+  // Declare a variable to memorize the input of the NeuraNet
+  VecFloat* input = VecFloatCreate(dimInput);
+
+  // Declare a variable to memorize the output of the NeuraNet
+  VecFloat* output = VecFloatCreate(VecGetDim(GrACellCurStatus(cell)));
+
+  // Set the current status of the cell in the input vector
+  for (
+    long iDim = VecGetDim(output);
+    iDim--;) {
+
+    float val =
+      GrACellGetCurStatus(
+        cell,
+        iDim);
+
+    VecSet(
+      input,
+      iDim,
+      val);
+
+  }
+
+  // Loop on the links toward neighbour cells
+  for (
+    long iLink = nbLinks;
+    iLink--;) {
+
+    // Get the link
+    long link =
+      GradCellGetLink(
+        GrACellGradCell(cell),
+        iLink);
+
+    // If the link is active
+    if (link != -1) {
+
+      // Get the neighbour cell and its status
+      GradCell* neighbour =
+        GradCellNeighbour(
+          grad,
+          GrACellGradCell(cell),
+          iLink);
+      GrACellFloat* neighbourCell =
+        (GrACellFloat*)GradCellData(neighbour);
+
+      // Set the current status of the neighbour cell in the
+      // input vector
+      for (
+        long iDim = VecGetDim(output);
+        iDim--;) {
+
+        float val =
+          GrACellGetCurStatus(
+            neighbourCell,
+            iDim);
+
+        VecSet(
+          input,
+          (link + 1) * VecGetDim(output) + iDim,
+          val);
+
+      }
+
+    }
+
+  }
+
+  // Apply the NeuraNet
+  NNEval(
+    GrAFunNeuraNetNN(that),
+    input,
+    output);
+
+  // Update the previous status with the output of the NeuraNet
+  // (it will be switch later)
+  for (
+    long iDim = VecGetDim(output);
+    iDim--;) {
+
+    float val =
+      VecGet(
+        output,
+        iDim);
+
+    GrACellSetPrevStatus(
+      cell,
+      iDim,
+      val);
+
+  }
+
+  // Free memory
+  VecFree(&input);
+  VecFree(&output);
 
 }
 
@@ -404,11 +591,11 @@ void _GradAutomatonSwitchAllStatus(GradAutomaton* const that) {
 #endif
 
   // Get the number of cells in the grad
-  int nbCell = GradGetArea(GradAutomatonGrad(that));
+  long nbCell = GradGetArea(GradAutomatonGrad(that));
 
   // Loop on the cell
   for (
-    int iCell = nbCell;
+    long iCell = nbCell;
     iCell--;) {
 
     // Get the cell
@@ -556,7 +743,7 @@ void _GradAutomatonDummyStep(GradAutomatonDummy* const that) {
 // Create a new GradAutomatonWolframOriginal
 GradAutomatonWolframOriginal* GradAutomatonCreateWolframOriginal(
   const unsigned char rule,
-  const unsigned long size) {
+           const long size) {
 
   // Allocate memory for the new GradAutomatonWolframOriginal
   GradAutomatonWolframOriginal* that =
@@ -588,18 +775,18 @@ GradAutomatonWolframOriginal* GradAutomatonCreateWolframOriginal(
       grad,
       fun);
 
-  // Declare a variable to memorize the index of the cell
-  unsigned long index = 0;
+  // Get the index of the cell in th center of the Grad
+  long iCellCenter = size / 2;
 
   // Add a GrACell to each cell of the Grad
-  VecShort2D pos = VecShortCreateStatic2D();
-  bool flag = true;
-  do {
+  for (
+    long iCell = size;
+    iCell--;) {
 
     GradCell* cell =
       GradCellAt(
         grad,
-        &pos);
+        iCell);
 
     long dimStatus = 1;
     GrACellShort* cellStatus =
@@ -608,7 +795,7 @@ GradAutomatonWolframOriginal* GradAutomatonCreateWolframOriginal(
         cell);
 
     // If it's the cell in the center of the Grad
-    if (index == size / 2) {
+    if (iCell == iCellCenter) {
 
       // Initialise the cell value to 1
       long iStatus = 0;
@@ -628,16 +815,7 @@ GradAutomatonWolframOriginal* GradAutomatonCreateWolframOriginal(
       cell,
       cellStatus);
 
-    // Increment the index of the cell
-    ++index;
-
-    // Move the position to the next cell in the Grad
-    flag =
-      VecStep(
-        &pos,
-        &dim);
-
-  } while(flag);
+  };
 
   // Return the new GradAutomatonWolframOriginal
   return that;
@@ -656,26 +834,24 @@ void GradAutomatonWolframOriginalFree(
 
   }
 
+  // Get the number of cells in the grad
+  long nbCell = GradGetArea(GradAutomatonGrad(*that));
+
   // Free the GrACell attached to the cells of the Grad
-  VecShort2D pos = VecShortCreateStatic2D();
-  bool flag = true;
-  do {
+  for (
+    long iCell = nbCell;
+    iCell--;) {
 
     GradCell* cell =
       GradCellAt(
         GradAutomatonGrad(*that),
-        &pos);
+        iCell);
 
     GrACellShort* cellStatus = GradCellData(cell);
 
     GrACellFree(&cellStatus);
 
-    flag =
-      VecStep(
-        &pos,
-        GradDim(GradAutomatonGrad(*that)));
-
-  } while(flag);
+  }
 
   // Free memory
   GradSquareFree((GradSquare**)&((*that)->gradAutomaton.grad));
@@ -704,11 +880,11 @@ void _GradAutomatonWolframOriginalStep(
 #endif
 
   // Get the number of cells in the grad
-  int nbCell = GradGetArea(GradAutomatonGrad(that));
+  long nbCell = GradGetArea(GradAutomatonGrad(that));
 
   // Loop on the cell
   for (
-    int iCell = nbCell;
+    long iCell = nbCell;
     iCell--;) {
 
     // Get the cell
@@ -759,7 +935,7 @@ void _GradAutomatonWolframOriginalPrintln(
 #endif
 
   // Get the number of cells in the grad
-  int nbCell = GradGetArea(GradAutomatonGrad(that));
+  long nbCell = GradGetArea(GradAutomatonGrad(that));
 
   fprintf(
     stream,
@@ -767,7 +943,7 @@ void _GradAutomatonWolframOriginalPrintln(
 
   // Loop on the cell
   for (
-    int iCell = 0;
+    long iCell = 0;
     iCell < nbCell;
     ++iCell) {
 
@@ -803,5 +979,215 @@ void _GradAutomatonWolframOriginalPrintln(
   fprintf(
     stream,
     "]\n");
+
+}
+
+// ------------- GradAutomatonNeuraNet
+
+// Create a new GradAutomatonNeuraNet with a GradSquare
+GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetSquare(
+               const long dimStatus,
+  const VecShort2D* const dimGrad,
+               const bool diagLink,
+          NeuraNet* const nn) {
+
+  // Allocate memory for the new GradAutomatonNeuraNet
+  GradAutomatonNeuraNet* that =
+    PBErrMalloc(
+      GradAutomatonErr,
+      sizeof(GradAutomatonNeuraNet));
+
+  // Create the associated Grad and GrAFun
+  Grad* grad =
+    (Grad*)GradSquareCreate(
+      dimGrad,
+      diagLink);
+  GrAFun* fun = (GrAFun*)GrAFunCreateNeuraNet(nn);
+
+  // Initialize the properties
+  that->gradAutomaton =
+    GradAutomatonCreateStatic(
+      GradAutomatonTypeNeuraNet,
+      grad,
+      fun);
+
+  // Add a GrACell to each cell of the Grad
+  long area = GradGetArea(GradAutomatonGrad(that));
+  for (
+    long iCell = area;
+    iCell--;) {
+
+    GradCell* cell =
+      GradCellAt(
+        grad,
+        iCell);
+
+    GrACellFloat* cellStatus =
+      GrACellCreateFloat(
+        dimStatus,
+        cell);
+
+    GradCellSetData(
+      cell,
+      cellStatus);
+
+  }
+
+  // Return the new GradAutomatonNeuraNet
+  return that;
+
+}
+
+// Create a new GradAutomatonNeuraNet with a GradHexa
+GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetHexa(
+               const long dimStatus,
+  const VecShort2D* const dimGrad,
+       const GradHexaType gradType,
+          NeuraNet* const nn) {
+
+  // Allocate memory for the new GradAutomatonNeuraNet
+  GradAutomatonNeuraNet* that =
+    PBErrMalloc(
+      GradAutomatonErr,
+      sizeof(GradAutomatonNeuraNet));
+
+  // Create the associated Grad and GrAFun
+  Grad* grad = NULL;
+  switch (gradType) {
+
+    case GradHexaTypeEvenQ:
+      grad = (Grad*)GradHexaCreateEvenQ(
+        dimGrad);
+      break;
+    case GradHexaTypeEvenR:
+      grad = (Grad*)GradHexaCreateEvenR(
+        dimGrad);
+      break;
+    case GradHexaTypeOddQ:
+      grad = (Grad*)GradHexaCreateOddQ(
+        dimGrad);
+      break;
+    case GradHexaTypeOddR:
+      grad = (Grad*)GradHexaCreateOddR(
+        dimGrad);
+      break;
+    default:
+      break;
+
+  }
+
+  GrAFun* fun = (GrAFun*)GrAFunCreateNeuraNet(nn);
+
+  // Initialize the properties
+  that->gradAutomaton =
+    GradAutomatonCreateStatic(
+      GradAutomatonTypeNeuraNet,
+      grad,
+      fun);
+
+  // Add a GrACell to each cell of the Grad
+  long area = GradGetArea(GradAutomatonGrad(that));
+  for (
+    long iCell = area;
+    iCell--;) {
+
+    GradCell* cell =
+      GradCellAt(
+        grad,
+        iCell);
+
+    GrACellFloat* cellStatus =
+      GrACellCreateFloat(
+        dimStatus,
+        cell);
+
+    GradCellSetData(
+      cell,
+      cellStatus);
+
+  }
+
+  // Return the new GradAutomatonNeuraNet
+  return that;
+
+}
+
+// Free the memory used by the GradAutomatonNeuraNet 'that'
+void GradAutomatonNeuraNetFree(
+  GradAutomatonNeuraNet** that) {
+
+  // If that is null
+  if (that == NULL || *that == NULL) {
+
+    // Do nothing
+    return;
+
+  }
+
+  // Free the GrACell attached to the cells of the Grad
+  long area = GradGetArea(GradAutomatonGrad(*that));
+  for (
+    long iCell = area;
+    iCell--;) {
+
+    GradCell* cell =
+      GradCellAt(
+        GradAutomatonGrad(*that),
+        iCell);
+
+    GrACellFloat* cellStatus = GradCellData(cell);
+
+    GrACellFree(&cellStatus);
+
+  }
+
+  // Free memory
+  GradSquareFree((GradSquare**)&((*that)->gradAutomaton.grad));
+  _GrAFunNeuraNetFree((GrAFunNeuraNet**)&((*that)->gradAutomaton.fun));
+  free(*that);
+  *that = NULL;
+
+}
+
+// Step the GradAutomatonNeuraNetStep
+void _GradAutomatonNeuraNetStep(GradAutomatonNeuraNet* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the number of cells in the grad
+  long nbCell = GradGetArea(GradAutomatonGrad(that));
+
+  // Loop on the cell
+  for (
+    long iCell = nbCell;
+    iCell--;) {
+
+    // Get the cell
+    GrACellFloat* cell =
+      GradAutomatonCell(
+        that,
+        iCell);
+
+    // Apply the step function to the cell
+    GrAFunApply(
+      GradAutomatonFun(that),
+      GradAutomatonGrad(that),
+      cell);
+
+  }
+
+  // Switch all the cells
+  GradAutomatonSwitchAllStatus(that);
 
 }

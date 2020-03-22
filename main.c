@@ -491,7 +491,7 @@ void UnitTestGrAFunWolframOriginalGetRule(void) {
 
   unsigned char rule = 42;
   GrAFunWolframOriginal* fun = GrAFunCreateWolframOriginal(rule);
-  if (GrAFunWolFramOriginalGetRule(fun) != rule) {
+  if (GrAFunWolframOriginalGetRule(fun) != rule) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
@@ -516,10 +516,132 @@ void UnitTestGrAFunWolframOriginal(void) {
 
 }
 
+void UnitTestGrAFunNeuraNetCreateFree(void) {
+
+  int nbIn = 1;
+  int nbOut = 1;
+  VecLong* hiddenLayers = VecLongCreate(1);
+  VecSet(
+    hiddenLayers,
+    0,
+    1);
+  NeuraNet* nn =
+    NeuraNetCreateFullyConnected(
+      nbIn,
+      nbOut,
+      hiddenLayers);
+  GrAFunNeuraNet* fun = GrAFunCreateNeuraNet(nn);
+  if (
+    fun == NULL ||
+    fun->grAFun.type != GrAFunTypeNeuraNet ||
+    fun->nn != nn) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunCreateNeuraNet failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrAFunFree(&fun);
+  if (fun != NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunFree failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  NeuraNetFree(&nn);
+  VecFree(&hiddenLayers);
+
+  printf("UnitTestGrAFunNeuraNetCreateFree OK\n");
+
+}
+
+void UnitTestGrAFunNeuraNetGetType(void) {
+
+  int nbIn = 1;
+  int nbOut = 1;
+  VecLong* hiddenLayers = VecLongCreate(1);
+  VecSet(
+    hiddenLayers,
+    0,
+    1);
+  NeuraNet* nn =
+    NeuraNetCreateFullyConnected(
+      nbIn,
+      nbOut,
+      hiddenLayers);
+  GrAFunNeuraNet* fun = GrAFunCreateNeuraNet(nn);
+  if (GrAFunGetType(fun) != GrAFunTypeNeuraNet) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunNeuraNetGetType failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrAFunFree(&fun);
+  NeuraNetFree(&nn);
+  VecFree(&hiddenLayers);
+
+  printf("UnitTestGrAFunNeuraNetGetType OK\n");
+
+}
+
+void UnitTestGrAFunNeuraNetNN(void) {
+
+  int nbIn = 1;
+  int nbOut = 1;
+  VecLong* hiddenLayers = VecLongCreate(1);
+  VecSet(
+    hiddenLayers,
+    0,
+    1);
+  NeuraNet* nn =
+    NeuraNetCreateFullyConnected(
+      nbIn,
+      nbOut,
+      hiddenLayers);
+  GrAFunNeuraNet* fun = GrAFunCreateNeuraNet(nn);
+  if (GrAFunNeuraNetNN(fun) != nn) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GrAFunNeuraNetNN failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GrAFunFree(&fun);
+  NeuraNetFree(&nn);
+  VecFree(&hiddenLayers);
+
+  printf("UnitTestGrAFunNeuraNetNN OK\n");
+
+}
+
+void UnitTestGrAFunNeuraNet(void) {
+
+  UnitTestGrAFunNeuraNetCreateFree();
+  UnitTestGrAFunNeuraNetGetType();
+  UnitTestGrAFunNeuraNetNN();
+  printf("UnitTestGrAFunNeuraNet OK\n");
+
+}
+
 void UnitTestGrAFun(void) {
 
   UnitTestGrAFunDummy();
   UnitTestGrAFunWolframOriginal();
+  UnitTestGrAFunNeuraNet();
   printf("UnitTestGrAFun OK\n");
 
 }
@@ -564,7 +686,7 @@ void UnitTestGradAutomatonDummyGet(void) {
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
       GradAutomatonErr->_msg,
-      "GradAutomatonDummyGetGrad failed");
+      "GradAutomatonDummyGrad failed");
     PBErrCatch(GradAutomatonErr);
 
   }
@@ -574,13 +696,13 @@ void UnitTestGradAutomatonDummyGet(void) {
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
       GradAutomatonErr->_msg,
-      "GradAutomatonDummyGetFun failed");
+      "GradAutomatonDummyFun failed");
     PBErrCatch(GradAutomatonErr);
 
   }
 
   for (
-    int i = 0;
+    long i = 0;
     i < 4;
     ++i) {
 
@@ -672,7 +794,7 @@ void UnitTestGradAutomatonDummy(void) {
 void UnitTestGradAutomatonWolframOriginalCreateFree(void) {
 
   unsigned char rule = 42;
-  unsigned long size = 20;
+  long size = 20;
   GradAutomatonWolframOriginal* ga =
     GradAutomatonCreateWolframOriginal(
       rule,
@@ -683,7 +805,7 @@ void UnitTestGradAutomatonWolframOriginalCreateFree(void) {
     ga->gradAutomaton.fun == NULL ||
     ga->gradAutomaton.type != GradAutomatonTypeWolframOriginal ||
     ((GrAFunWolframOriginal*)(ga->gradAutomaton.fun))->rule != rule ||
-    ga->gradAutomaton.grad->_dim._val[0] != (long)size ||
+    ga->gradAutomaton.grad->_dim._val[0] != size ||
     ga->gradAutomaton.grad->_dim._val[1] != 1) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
@@ -712,7 +834,7 @@ void UnitTestGradAutomatonWolframOriginalCreateFree(void) {
 void UnitTestGradAutomatonWolframOriginalGet(void) {
 
   unsigned char rule = 42;
-  unsigned long size = 20;
+  long size = 20;
   GradAutomatonWolframOriginal* ga =
     GradAutomatonCreateWolframOriginal(
       rule,
@@ -722,7 +844,7 @@ void UnitTestGradAutomatonWolframOriginalGet(void) {
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
       GradAutomatonErr->_msg,
-      "GradAutomatonWolframOriginalGetGrad failed");
+      "GradAutomatonWolframOriginalGrad failed");
     PBErrCatch(GradAutomatonErr);
 
   }
@@ -732,13 +854,13 @@ void UnitTestGradAutomatonWolframOriginalGet(void) {
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
       GradAutomatonErr->_msg,
-      "GradAutomatonWolframOriginalGetFun failed");
+      "GradAutomatonWolframOriginalFun failed");
     PBErrCatch(GradAutomatonErr);
 
   }
 
   for (
-    int i = 0;
+    long i = 0;
     i < 4;
     ++i) {
 
@@ -809,7 +931,7 @@ void UnitTestGradAutomatonWolframOriginalGet(void) {
 void UnitTestGradAutomatonWolframOriginalStepPrintln(void) {
 
   unsigned char rule = 30;
-  unsigned long size = 100;
+  long size = 100;
   GradAutomatonWolframOriginal* ga =
     GradAutomatonCreateWolframOriginal(
       rule,
@@ -820,7 +942,7 @@ void UnitTestGradAutomatonWolframOriginalStepPrintln(void) {
     stdout);
 
   for (
-    unsigned long iStep = 0;
+    long iStep = 0;
     iStep < size;
     ++iStep) {
 
@@ -847,12 +969,267 @@ void UnitTestGradAutomatonWolframOriginal(void) {
 
 }
 
+void UnitTestGradAutomatonNeuraNetCreateFree(void) {
+
+  long dimStatus = 3;
+  VecShort2D dimGrad = VecShortCreateStatic2D();
+  VecSet(
+    &dimGrad,
+    0,
+    2);
+  VecSet(
+    &dimGrad,
+    1,
+    2);
+  bool diagLink = true;
+  int nbIn = dimStatus * 9;
+  int nbOut = dimStatus;
+  VecLong* hiddenLayers = VecLongCreate(1);
+  VecSet(
+    hiddenLayers,
+    0,
+    1);
+  NeuraNet* nn =
+    NeuraNetCreateFullyConnected(
+      nbIn,
+      nbOut,
+      hiddenLayers);
+  GradAutomatonNeuraNet* ga =
+    GradAutomatonCreateNeuraNetSquare(
+      dimStatus,
+      &dimGrad,
+      diagLink,
+      nn);
+  if (
+    ga == NULL ||
+    ga->gradAutomaton.grad == NULL ||
+    ga->gradAutomaton.fun == NULL ||
+    ga->gradAutomaton.type != GradAutomatonTypeNeuraNet ||
+    ga->gradAutomaton.grad->_type != GradTypeSquare ||
+    ga->gradAutomaton.grad->_dim._val[0] != 2 ||
+    ga->gradAutomaton.grad->_dim._val[1] != 2) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonCreateNeuraNetSquare failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GradAutomatonNeuraNetFree(&ga);
+  if (ga != NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetFree failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  NeuraNetFree(&nn);
+  VecFree(&hiddenLayers);
+
+  printf("UnitTestGradAutomatonNeuraNetCreateFree OK\n");
+
+}
+
+void UnitTestGradAutomatonNeuraNetGet(void) {
+
+  long dimStatus = 3;
+  VecShort2D dimGrad = VecShortCreateStatic2D();
+  VecSet(
+    &dimGrad,
+    0,
+    2);
+  VecSet(
+    &dimGrad,
+    1,
+    2);
+  bool diagLink = true;
+  int nbIn = dimStatus * 9;
+  int nbOut = dimStatus;
+  VecLong* hiddenLayers = VecLongCreate(1);
+  VecSet(
+    hiddenLayers,
+    0,
+    1);
+  NeuraNet* nn =
+    NeuraNetCreateFullyConnected(
+      nbIn,
+      nbOut,
+      hiddenLayers);
+  GradAutomatonNeuraNet* ga =
+    GradAutomatonCreateNeuraNetSquare(
+      dimStatus,
+      &dimGrad,
+      diagLink,
+      nn);
+  if (GradAutomatonGrad(ga) != ga->gradAutomaton.grad) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetGrad failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (GradAutomatonNeuraNetGetGradType(ga) != GradTypeSquare) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetGradType failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if ((void*)GradAutomatonFun(ga) != ga->gradAutomaton.fun) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetFun failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  for (
+    long i = 0;
+    i < 4;
+    ++i) {
+
+    void* cellA =
+      GradAutomatonCell(
+        ga,
+        i);
+    void* cellB =
+      GradCellAt(
+        ga->gradAutomaton.grad,
+        i);
+    if (cellA != GradCellData(cellB)) {
+
+      GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(
+        GradAutomatonErr->_msg,
+        "GradAutomatonNeuraNetCellIndex failed");
+      PBErrCatch(GradAutomatonErr);
+
+    }
+
+  }
+
+  VecShort2D pos = VecShortCreateStatic2D(2);
+  bool flag = true;
+  do {
+
+    void* cellA =
+      GradAutomatonCell(
+        ga,
+        &pos);
+    void* cellB =
+      GradCellAt(
+        ga->gradAutomaton.grad,
+        &pos);
+    if (cellA != GradCellData(cellB)) {
+
+      GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(
+        GradAutomatonErr->_msg,
+        "GradAutomatonNeuraNetCellPos failed");
+      PBErrCatch(GradAutomatonErr);
+
+    }
+
+    flag =
+      VecStep(
+        &pos,
+        &dimGrad);
+
+  } while(flag);
+
+  GradAutomatonNeuraNetFree(&ga);
+  NeuraNetFree(&nn);
+  VecFree(&hiddenLayers);
+
+  printf("UnitTestGradAutomatonNeuraNetGet OK\n");
+
+}
+
+void UnitTestGradAutomatonNeuraNetStep(void) {
+
+  long dimStatus = 3;
+  VecShort2D dimGrad = VecShortCreateStatic2D();
+  VecSet(
+    &dimGrad,
+    0,
+    2);
+  VecSet(
+    &dimGrad,
+    1,
+    2);
+  bool diagLink = true;
+  int nbIn = dimStatus * 9;
+  int nbOut = dimStatus;
+  VecLong* hiddenLayers = VecLongCreate(1);
+  VecSet(
+    hiddenLayers,
+    0,
+    1);
+  NeuraNet* nn =
+    NeuraNetCreateFullyConnected(
+      nbIn,
+      nbOut,
+      hiddenLayers);
+  GradAutomatonNeuraNet* ga =
+    GradAutomatonCreateNeuraNetSquare(
+      dimStatus,
+      &dimGrad,
+      diagLink,
+      nn);
+
+  for (
+    long iStep = 0;
+    iStep < 2;
+    ++iStep) {
+
+    GradAutomatonStep(ga);
+
+  }
+
+  GradAutomatonNeuraNetFree(&ga);
+  NeuraNetFree(&nn);
+  VecFree(&hiddenLayers);
+
+  printf("UnitTestGradAutomatonNeuraNetStep OK\n");
+
+}
+
+void UnitTestGradAutomatonNeuraNet(void) {
+
+  UnitTestGradAutomatonNeuraNetCreateFree();
+  UnitTestGradAutomatonNeuraNetGet();
+  UnitTestGradAutomatonNeuraNetStep();
+  printf("UnitTestGradAutomatonNeuraNet OK\n");
+
+}
+
+void UnitTestGradAutomaton(void) {
+
+  UnitTestGradAutomatonDummy();
+  UnitTestGradAutomatonWolframOriginal();
+  UnitTestGradAutomatonNeuraNet();
+  printf("UnitTestGradAutomaton OK\n");
+
+}
+
 void UnitTestAll(void) {
 
   UnitTestGrACell();
   UnitTestGrAFun();
-  UnitTestGradAutomatonDummy();
-  UnitTestGradAutomatonWolframOriginal();
+  UnitTestGradAutomaton();
   printf("UnitTestAll OK\n");
 
 }

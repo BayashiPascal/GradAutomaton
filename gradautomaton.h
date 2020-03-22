@@ -14,6 +14,7 @@
 #include "pbmath.h"
 #include "gset.h"
 #include "grad.h"
+#include "neuranet.h"
 
 // -------------- GrACell
 
@@ -260,7 +261,8 @@ GradCell* _GrACellFloatGradCell(const GrACellFloat* const that);
 typedef enum GrAFunType {
 
   GrAFunTypeDummy,
-  GrAFunTypeWolframOriginal
+  GrAFunTypeWolframOriginal,
+  GrAFunTypeNeuraNet
 
 } GrAFunType;
 
@@ -335,7 +337,7 @@ void _GrAFunWolframOriginalFree(GrAFunWolframOriginal** that);
 #if BUILDMODE != 0
 static inline
 #endif
-unsigned char GrAFunWolFramOriginalGetRule(
+unsigned char GrAFunWolframOriginalGetRule(
   GrAFunWolframOriginal* const that);
 
 // Apply the step function for the GrAFunWolframOriginal 'that'
@@ -345,12 +347,52 @@ void _GrAFunWolframOriginalApply(
              GradSquare* const grad,
            GrACellShort* const cell);
 
+// -------------- GrAFunNeuraNet
+
+// ================= Define ==================
+
+// ================= Data structure ===================
+
+typedef struct GrAFunNeuraNet {
+
+  // GrAFun
+  GrAFun grAFun;
+
+  // NeuraNet applied to the cells
+  NeuraNet* nn;
+
+} GrAFunNeuraNet;
+
+// ================ Functions declaration ====================
+
+// Create a new GrAFunNeuraNet
+GrAFunNeuraNet* GrAFunCreateNeuraNet(
+  NeuraNet* const nn);
+
+// Free the memory used by the GrAFunNeuraNet 'that'
+void _GrAFunNeuraNetFree(GrAFunNeuraNet** that);
+
+// Return the NeuraNet of the GrAFunNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+NeuraNet* GrAFunNeuraNetNN(
+  GrAFunNeuraNet* const that);
+
+// Apply the step function for the GrAFunNeuraNet 'that'
+// to the GrACellShort 'cell' in the GradSquare 'grad'
+void _GrAFunNeuraNetApply(
+  GrAFunNeuraNet* const that,
+            Grad* const grad,
+    GrACellFloat* const cell);
+
 // ================= Polymorphism ==================
 
 #define GrAFunFree(G) _Generic(G, \
   GrAFun*: _GrAFunFreeStatic, \
   GrAFunDummy**: _GrAFunDummyFree, \
   GrAFunWolframOriginal**: _GrAFunWolframOriginalFree, \
+  GrAFunNeuraNet**: _GrAFunNeuraNetFree, \
   default: PBErrInvalidPolymorphism)(G)
 
 #define GrAFunGetType(G) _Generic(G, \
@@ -360,10 +402,13 @@ void _GrAFunWolframOriginalApply(
   const GrAFunDummy*: _GrAFunGetType, \
   GrAFunWolframOriginal*: _GrAFunGetType, \
   const GrAFunWolframOriginal*: _GrAFunGetType, \
+  GrAFunNeuraNet*: _GrAFunGetType, \
+  const GrAFunNeuraNet*: _GrAFunGetType, \
   default: PBErrInvalidPolymorphism)((const GrAFun*)(G))
 
 #define GrAFunApply(F, G, C) _Generic(F, \
   GrAFunWolframOriginal*: _GrAFunWolframOriginalApply, \
+  GrAFunNeuraNet*: _GrAFunNeuraNetApply, \
   default: PBErrInvalidPolymorphism)(F, G, C)
 
 // -------------- GradAutomaton
@@ -375,7 +420,8 @@ void _GrAFunWolframOriginalApply(
 typedef enum GradAutomatonType {
 
   GradAutomatonTypeDummy,
-  GradAutomatonTypeWolframOriginal
+  GradAutomatonTypeWolframOriginal,
+  GradAutomatonTypeNeuraNet
 
 } GradAutomatonType;
 
@@ -424,7 +470,7 @@ static inline
 #endif
 GrACell* _GradAutomatonCellIndex(
   GradAutomaton* const that,
-             const int iCell);
+            const long iCell);
 
 // Switch the status of all the cells of the GradAutomaton 'that'
 void _GradAutomatonSwitchAllStatus(GradAutomaton* const that);
@@ -487,7 +533,7 @@ static inline
 #endif
 GrACellShort* _GradAutomatonDummyCellIndex(
   GradAutomatonDummy* const that,
-                  const int iCell);
+                 const long iCell);
 
 // -------------- GradAutomatonWorlframOriginal
 
@@ -508,13 +554,13 @@ typedef struct GradAutomatonWolframOriginal {
 // Create a new GradAutomatonWolframOriginal
 GradAutomatonWolframOriginal* GradAutomatonCreateWolframOriginal(
   const unsigned char rule,
-  const unsigned long size);
+           const long size);
 
 // Free the memory used by the GradAutomatonWolframOriginal 'that'
 void GradAutomatonWolframOriginalFree(
   GradAutomatonWolframOriginal** that);
 
-// Step the GradAutomatonWlframOriginal
+// Step the GradAutomatonWolframOriginal
 void _GradAutomatonWolframOriginalStep(
   GradAutomatonWolframOriginal* const that);
 
@@ -548,12 +594,87 @@ static inline
 #endif
 GrACellShort* _GradAutomatonWolframOriginalCellIndex(
   GradAutomatonWolframOriginal* const that,
-                            const int iCell);
+                           const long iCell);
 
 // Print the GradAutomatonWolframOriginal 'that' on the FILE 'stream'
 void _GradAutomatonWolframOriginalPrintln(
   GradAutomatonWolframOriginal* const that,
                                 FILE* stream);
+
+// -------------- GradAutomatonNeuraNet
+
+// ================= Define ==================
+
+// ================= Data structure ===================
+
+// GradSquare/GradHexa, GraFunNeuraNet, GrACellFloat
+typedef struct GradAutomatonNeuraNet {
+
+  // Parent GradAutomaton
+  GradAutomaton gradAutomaton;
+
+} GradAutomatonNeuraNet;
+
+// ================ Functions declaration ====================
+
+// Create a new GradAutomatonNeuraNet with a GradSquare
+GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetSquare(
+               const long dimStatus,
+  const VecShort2D* const dimGrad,
+               const bool diagLink,
+          NeuraNet* const nn);
+
+// Create a new GradAutomatonNeuraNet with a GradHexa
+GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetHexa(
+               const long dimStatus,
+  const VecShort2D* const dimGrad,
+       const GradHexaType gradType,
+          NeuraNet* const nn);
+
+// Free the memory used by the GradAutomatonNeuraNet 'that'
+void GradAutomatonNeuraNetFree(
+  GradAutomatonNeuraNet** that);
+
+// Step the GradAutomatonNeuraNet
+void _GradAutomatonNeuraNetStep(GradAutomatonNeuraNet* const that);
+
+// Return the Grad of the GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+Grad* _GradAutomatonNeuraNetGrad(GradAutomatonNeuraNet* const that);
+
+// Return the type of Grad of the GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GradType GradAutomatonNeuraNetGetGradType(
+  GradAutomatonNeuraNet* const that);
+
+// Return the GrAFun of the GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrAFunNeuraNet* _GradAutomatonNeuraNetFun(
+  GradAutomatonNeuraNet* const that);
+
+// Return the GrACellFloat at position 'pos' for the
+// GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellFloat* _GradAutomatonNeuraNetCellPos(
+  GradAutomatonNeuraNet* const that,
+       const VecShort2D* const pos);
+
+// Return the GrACellFloat at index 'iCell' for the
+// GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellFloat* _GradAutomatonNeuraNetCellIndex(
+  GradAutomatonNeuraNet* const that,
+                    const long iCell);
 
 // ================= Polymorphism ==================
 
@@ -561,42 +682,52 @@ void _GradAutomatonWolframOriginalPrintln(
   GradAutomaton* : _GradAutomatonSwitchAllStatus, \
   GradAutomatonDummy* : _GradAutomatonSwitchAllStatus, \
   GradAutomatonWolframOriginal* : _GradAutomatonSwitchAllStatus, \
+  GradAutomatonNeuraNet* : _GradAutomatonSwitchAllStatus, \
   default: PBErrInvalidPolymorphism)((GradAutomaton*)(G))
 
 #define GradAutomatonStep(G) _Generic(G, \
   GradAutomatonDummy* : _GradAutomatonDummyStep, \
   GradAutomatonWolframOriginal* : _GradAutomatonWolframOriginalStep, \
+  GradAutomatonNeuraNet* : _GradAutomatonNeuraNetStep, \
   default: PBErrInvalidPolymorphism)(G)
 
 #define GradAutomatonGrad(G) _Generic(G, \
   GradAutomaton* : _GradAutomatonGrad, \
   GradAutomatonDummy* : _GradAutomatonDummyGrad, \
   GradAutomatonWolframOriginal* : _GradAutomatonWolframOriginalGrad, \
+  GradAutomatonNeuraNet* : _GradAutomatonNeuraNetGrad, \
   default: PBErrInvalidPolymorphism)(G)
 
 #define GradAutomatonFun(G) _Generic(G, \
   GradAutomatonDummy* : _GradAutomatonDummyFun, \
   GradAutomatonWolframOriginal* : _GradAutomatonWolframOriginalFun, \
+  GradAutomatonNeuraNet* : _GradAutomatonNeuraNetFun, \
   default: PBErrInvalidPolymorphism)(G)
 
 #define GradAutomatonCell(G, P) _Generic(G, \
   GradAutomaton* : _Generic(P, \
     VecShort2D*: _GradAutomatonCellPos, \
     const VecShort2D*: _GradAutomatonCellPos, \
-    int: _GradAutomatonCellIndex, \
-    const int: _GradAutomatonCellIndex, \
+    long: _GradAutomatonCellIndex, \
+    const long: _GradAutomatonCellIndex, \
     default: PBErrInvalidPolymorphism), \
   GradAutomatonDummy* : _Generic(P, \
     VecShort2D*: _GradAutomatonDummyCellPos, \
     const VecShort2D*: _GradAutomatonDummyCellPos, \
-    int: _GradAutomatonDummyCellIndex, \
-    const int: _GradAutomatonDummyCellIndex, \
+    long: _GradAutomatonDummyCellIndex, \
+    const long: _GradAutomatonDummyCellIndex, \
     default: PBErrInvalidPolymorphism), \
   GradAutomatonWolframOriginal* : _Generic(P, \
     VecShort2D*: _GradAutomatonWolframOriginalCellPos, \
     const VecShort2D*: _GradAutomatonWolframOriginalCellPos, \
-    int: _GradAutomatonWolframOriginalCellIndex, \
-    const int: _GradAutomatonWolframOriginalCellIndex, \
+    long: _GradAutomatonWolframOriginalCellIndex, \
+    const long: _GradAutomatonWolframOriginalCellIndex, \
+    default: PBErrInvalidPolymorphism), \
+  GradAutomatonNeuraNet* : _Generic(P, \
+    VecShort2D*: _GradAutomatonNeuraNetCellPos, \
+    const VecShort2D*: _GradAutomatonNeuraNetCellPos, \
+    long: _GradAutomatonNeuraNetCellIndex, \
+    const long: _GradAutomatonNeuraNetCellIndex, \
     default: PBErrInvalidPolymorphism), \
   default: PBErrInvalidPolymorphism)(G, P)
 

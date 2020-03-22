@@ -432,7 +432,7 @@ GrAFunType _GrAFunGetType(const GrAFun* const that) {
 #if BUILDMODE != 0
 static inline
 #endif
-unsigned char GrAFunWolFramOriginalGetRule(
+unsigned char GrAFunWolframOriginalGetRule(
   GrAFunWolframOriginal* const that) {
 
 #if BUILDMODE == 0
@@ -449,6 +449,34 @@ unsigned char GrAFunWolFramOriginalGetRule(
 #endif
 
   return that->rule;
+
+}
+
+// -------------- GrAFunNeuraNet
+
+// ================ Functions implementation ====================
+
+// Return the NeuraNet of the GrAFunNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+NeuraNet* GrAFunNeuraNetNN(
+  GrAFunNeuraNet* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  return that->nn;
 
 }
 
@@ -529,7 +557,7 @@ static inline
 #endif
 GrACell* _GradAutomatonCellIndex(
   GradAutomaton* const that,
-             const int iCell) {
+            const long iCell) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -657,7 +685,7 @@ static inline
 #endif
 GrACellShort* _GradAutomatonDummyCellIndex(
   GradAutomatonDummy* const that,
-                  const int iCell) {
+                 const long iCell) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -787,7 +815,7 @@ static inline
 #endif
 GrACellShort* _GradAutomatonWolframOriginalCellIndex(
   GradAutomatonWolframOriginal* const that,
-                            const int iCell) {
+                           const long iCell) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -810,5 +838,159 @@ GrACellShort* _GradAutomatonWolframOriginalCellIndex(
 
   // Return the GrACellShort associated to the cell
   return (GrACellShort*)GradCellData(cell);
+
+}
+
+// -------------- GradAutomatonNeuraNet
+
+// ================ Functions implementation ====================
+
+// Return the Grad of the GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+Grad* _GradAutomatonNeuraNetGrad(GradAutomatonNeuraNet* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Return the Grad
+  return ((GradAutomaton*)that)->grad;
+
+}
+
+// Return the type of Grad of the GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GradType GradAutomatonNeuraNetGetGradType(
+  GradAutomatonNeuraNet* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Return the type of the Grad
+  return GradGetType(((GradAutomaton*)that)->grad);
+
+}
+
+// Return the GrAFun of the GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrAFunNeuraNet* _GradAutomatonNeuraNetFun(
+  GradAutomatonNeuraNet* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Return the GrAFun
+  return (GrAFunNeuraNet*)(((GradAutomaton*)that)->fun);
+
+}
+
+// Return the GrACellFloat at position 'pos' for the
+// GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellFloat* _GradAutomatonNeuraNetCellPos(
+  GradAutomatonNeuraNet* const that,
+       const VecShort2D* const pos) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (pos == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'pos' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the GradCell at the requested position
+  GradCell* cell =
+    GradCellAt(
+      GradAutomatonGrad(that),
+      pos);
+
+  // Return the GrACellFloat associated to the cell
+  return (GrACellFloat*)GradCellData(cell);
+
+}
+
+// Return the GrACellFloat at index 'iCell' for the
+// GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+GrACellFloat* _GradAutomatonNeuraNetCellIndex(
+  GradAutomatonNeuraNet* const that,
+                    const long iCell) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the GradCell at the requested position
+  GradCell* cell =
+    GradCellAt(
+      GradAutomatonGrad(that),
+      iCell);
+
+  // Return the GrACellFloat associated to the cell
+  return (GrACellFloat*)GradCellData(cell);
 
 }
