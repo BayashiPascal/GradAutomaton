@@ -453,7 +453,7 @@ GradAutomaton GradAutomatonCreateStatic(
 #if BUILDMODE != 0
 static inline
 #endif
-Grad* _GradAutomatonGrad(GradAutomaton* const that);
+Grad* _GradAutomatonGrad(const GradAutomaton* const that);
 
 // Return the GrACellShort at position 'pos' for the
 // GradAutomaton 'that'
@@ -510,13 +510,15 @@ void _GradAutomatonDummyStep(GradAutomatonDummy* const that);
 #if BUILDMODE != 0
 static inline
 #endif
-GradSquare* _GradAutomatonDummyGrad(GradAutomatonDummy* const that);
+GradSquare* _GradAutomatonDummyGrad(
+  const GradAutomatonDummy* const that);
 
 // Return the GrAFun of the GradAutomatonDummy 'that'
 #if BUILDMODE != 0
 static inline
 #endif
-GrAFunDummy* _GradAutomatonDummyFun(GradAutomatonDummy* const that);
+GrAFunDummy* _GradAutomatonDummyFun(
+  const GradAutomatonDummy* const that);
 
 // Return the GrACellShort at position 'pos' for the
 // GradAutomatonDummy 'that'
@@ -564,19 +566,28 @@ void GradAutomatonWolframOriginalFree(
 void _GradAutomatonWolframOriginalStep(
   GradAutomatonWolframOriginal* const that);
 
+// JSON encoding of GradAutomatonWolframOriginal 'that'
+JSONNode* _GradAutomatonWolframOriginalEncodeAsJSON(
+  const GradAutomatonWolframOriginal* const that);
+
+// Function which decode from JSON encoding 'json' to 'that'
+bool _GradAutomatonWolframOriginalDecodeAsJSON(
+  GradAutomatonWolframOriginal** that,
+           const JSONNode* const json);
+
 // Return the Grad of the GradAutomatonWolframOriginal 'that'
 #if BUILDMODE != 0
 static inline
 #endif
 GradSquare* _GradAutomatonWolframOriginalGrad(
-  GradAutomatonWolframOriginal* const that);
+  const GradAutomatonWolframOriginal* const that);
 
 // Return the GrAFun of the GradAutomatonWolframOriginal 'that'
 #if BUILDMODE != 0
 static inline
 #endif
 GrAFunWolframOriginal* _GradAutomatonWolframOriginalFun(
-  GradAutomatonWolframOriginal* const that);
+  const GradAutomatonWolframOriginal* const that);
 
 // Return the GrACellShort at position 'pos' for the
 // GradAutomatonWolframOriginal 'that'
@@ -600,6 +611,24 @@ GrACellShort* _GradAutomatonWolframOriginalCellIndex(
 void _GradAutomatonWolframOriginalPrintln(
   GradAutomatonWolframOriginal* const that,
                                 FILE* stream);
+
+// Save the GradAutomatonWolframOriginal 'that' to the stream 'stream'
+// If 'compact' equals true it saves in compact form, else it saves in
+// readable form
+// Return true if the GradAutomatonWolframOriginal could be saved,
+// false else
+bool _GradAutomatonWolframOriginalSave(
+  const GradAutomatonWolframOriginal* const that,
+                                FILE* const stream,
+                                 const bool compact);
+
+// Load the GradAutomatonWolfraOriginal 'that' from the stream 'stream'
+// If 'that' is not null the memory is first freed
+// Return true if the GradAutomatonWolframOriginal could be loaded,
+// false else
+bool _GradAutomatonWolframOriginalLoad(
+  GradAutomatonWolframOriginal** that,
+                     FILE* const stream);
 
 // -------------- GradAutomatonNeuraNet
 
@@ -642,7 +671,8 @@ void _GradAutomatonNeuraNetStep(GradAutomatonNeuraNet* const that);
 #if BUILDMODE != 0
 static inline
 #endif
-Grad* _GradAutomatonNeuraNetGrad(GradAutomatonNeuraNet* const that);
+Grad* _GradAutomatonNeuraNetGrad(
+  const GradAutomatonNeuraNet* const that);
 
 // Return the type of Grad of the GradAutomatonNeuraNet 'that'
 #if BUILDMODE != 0
@@ -656,7 +686,7 @@ GradType GradAutomatonNeuraNetGetGradType(
 static inline
 #endif
 GrAFunNeuraNet* _GradAutomatonNeuraNetFun(
-  GradAutomatonNeuraNet* const that);
+  const GradAutomatonNeuraNet* const that);
 
 // Return the GrACellFloat at position 'pos' for the
 // GradAutomatonNeuraNet 'that'
@@ -693,15 +723,24 @@ GrACellFloat* _GradAutomatonNeuraNetCellIndex(
 
 #define GradAutomatonGrad(G) _Generic(G, \
   GradAutomaton* : _GradAutomatonGrad, \
+  const GradAutomaton* : _GradAutomatonGrad, \
   GradAutomatonDummy* : _GradAutomatonDummyGrad, \
+  const GradAutomatonDummy* : _GradAutomatonDummyGrad, \
   GradAutomatonWolframOriginal* : _GradAutomatonWolframOriginalGrad, \
+  const GradAutomatonWolframOriginal* : \
+    _GradAutomatonWolframOriginalGrad, \
   GradAutomatonNeuraNet* : _GradAutomatonNeuraNetGrad, \
+  const GradAutomatonNeuraNet* : _GradAutomatonNeuraNetGrad, \
   default: PBErrInvalidPolymorphism)(G)
 
 #define GradAutomatonFun(G) _Generic(G, \
   GradAutomatonDummy* : _GradAutomatonDummyFun, \
+  const GradAutomatonDummy* : _GradAutomatonDummyFun, \
   GradAutomatonWolframOriginal* : _GradAutomatonWolframOriginalFun, \
+  const GradAutomatonWolframOriginal* : \
+    _GradAutomatonWolframOriginalFun, \
   GradAutomatonNeuraNet* : _GradAutomatonNeuraNetFun, \
+  const GradAutomatonNeuraNet* : _GradAutomatonNeuraNetFun, \
   default: PBErrInvalidPolymorphism)(G)
 
 #define GradAutomatonCell(G, P) _Generic(G, \
@@ -736,6 +775,32 @@ GrACellFloat* _GradAutomatonNeuraNetCellIndex(
     _GradAutomatonWolframOriginalPrintln, \
   const GradAutomatonWolframOriginal* :\
     _GradAutomatonWolframOriginalPrintln, \
+  default: PBErrInvalidPolymorphism)(G, S)
+
+#define GradAutomatonEncodeAsJSON(G) _Generic(G, \
+  GradAutomatonWolframOriginal* : \
+    _GradAutomatonWolframOriginalEncodeAsJSON, \
+  const GradAutomatonWolframOriginal* :\
+    _GradAutomatonWolframOriginalEncodeAsJSON, \
+  default: PBErrInvalidPolymorphism)(G)
+
+#define GradAutomatonDecodeAsJSON(G, J) _Generic(G, \
+  GradAutomatonWolframOriginal** : \
+    _GradAutomatonWolframOriginalDecodeAsJSON, \
+  default: PBErrInvalidPolymorphism)(G, J)
+
+#define GradAutomatonSave(G, S, C) _Generic(G, \
+  GradAutomatonWolframOriginal* : \
+    _GradAutomatonWolframOriginalSave, \
+  const GradAutomatonWolframOriginal* :\
+    _GradAutomatonWolframOriginalSave, \
+  default: PBErrInvalidPolymorphism)(G, S, C)
+
+#define GradAutomatonLoad(G, S) _Generic(G, \
+  GradAutomatonWolframOriginal** : \
+    _GradAutomatonWolframOriginalLoad, \
+  const GradAutomatonWolframOriginal** :\
+    _GradAutomatonWolframOriginalLoad, \
   default: PBErrInvalidPolymorphism)(G, S)
 
 // ================ static inliner ====================

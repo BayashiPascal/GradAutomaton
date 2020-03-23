@@ -960,11 +960,87 @@ void UnitTestGradAutomatonWolframOriginalStepPrintln(void) {
 
 }
 
+void UnitTestGradAutomatonWolframOriginalLoadSave(void) {
+
+  unsigned char rule = 30;
+  long size = 100;
+  GradAutomatonWolframOriginal* ga =
+    GradAutomatonCreateWolframOriginal(
+      rule,
+      size);
+
+  FILE* fp =
+    fopen(
+      "./unitTestGradAutomatonWolframOriginalSave.json",
+      "w");
+  bool compact = false;
+  bool ret =
+    GradAutomatonSave(
+      ga,
+      fp,
+      compact);
+  if (ret == false) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonWolframOriginalSave failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GradAutomatonWolframOriginalFree(&ga);
+  fclose(fp);
+  fp =
+    fopen(
+      "./unitTestGradAutomatonWolframOriginalSave.json",
+      "r");
+
+  ret =
+    GradAutomatonLoad(
+      &ga,
+      fp);
+
+  if (
+    ret == false ||
+    GrAFunWolframOriginalGetRule(GradAutomatonFun(ga)) != rule) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonWolframOriginalLoad failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  const VecShort2D* dim = GradDim(GradAutomatonGrad(ga));
+  long sizeLoaded =
+    VecGet(
+      dim,
+      0);
+  if (sizeLoaded != size) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonWolframOriginalLoad failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GradAutomatonWolframOriginalFree(&ga);
+  fclose(fp);
+
+  printf("UnitTestGradAutomatonWolframOriginalLoadSave OK\n");
+
+}
+
 void UnitTestGradAutomatonWolframOriginal(void) {
 
   UnitTestGradAutomatonWolframOriginalCreateFree();
   UnitTestGradAutomatonWolframOriginalGet();
   UnitTestGradAutomatonWolframOriginalStepPrintln();
+  UnitTestGradAutomatonWolframOriginalLoadSave();
   printf("UnitTestGradAutomatonWolframOriginal OK\n");
 
 }

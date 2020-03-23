@@ -982,6 +982,247 @@ void _GradAutomatonWolframOriginalPrintln(
 
 }
 
+// JSON encoding of GradAutomatonWolframOriginal 'that'
+JSONNode* _GradAutomatonWolframOriginalEncodeAsJSON(
+  const GradAutomatonWolframOriginal* const that) {
+
+#if BUILDMODE == 0
+
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Create the JSON structure
+  JSONNode* json = JSONCreate();
+
+  // Declare a buffer to convert value into string
+  char val[100];
+
+  // Encode the rule
+  unsigned char rule =
+    GrAFunWolframOriginalGetRule(GradAutomatonFun(that));
+  sprintf(
+    val,
+    "%d",
+    rule);
+  JSONAddProp(
+    json,
+    "rule",
+    val);
+
+  // Encode the size
+  const VecShort2D* dim = GradDim(GradAutomatonGrad(that));
+  long size =
+    VecGet(
+      dim,
+      0);
+  sprintf(
+    val,
+    "%ld",
+    size);
+  JSONAddProp(
+    json,
+    "size",
+    val);
+
+  // Return the created JSON
+  return json;
+
+}
+
+// Function which decode from JSON encoding 'json' to 'that'
+bool _GradAutomatonWolframOriginalDecodeAsJSON(
+  GradAutomatonWolframOriginal** that,
+           const JSONNode* const json) {
+
+#if BUILDMODE == 0
+
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (json == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'json' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // If 'that' is already allocated
+  if (*that != NULL) {
+
+    // Free memory
+    GradAutomatonWolframOriginalFree(that);
+
+  }
+
+  // Decode the rule
+  JSONNode* prop =
+    JSONProperty(
+      json,
+      "rule");
+  if (prop == NULL) {
+
+    return false;
+
+  }
+
+  unsigned char rule = atoi(JSONLblVal(prop));
+
+  // Decode the size
+  prop =
+    JSONProperty(
+      json,
+      "size");
+  if (prop == NULL) {
+
+    return false;
+
+  }
+
+  long size = atol(JSONLblVal(prop));
+
+  // Create the GradAutomatonWolframOriginal
+  *that =
+    GradAutomatonCreateWolframOriginal(
+      rule,
+      size);
+
+  // Return the success code
+  return true;
+
+}
+
+// Save the GradAutomatonWolframOriginal 'that' to the stream 'stream'
+// If 'compact' equals true it saves in compact form, else it saves in
+// readable form
+// Return true if the GradAutomatonWolframOriginal could be saved,
+// false else
+bool _GradAutomatonWolframOriginalSave(
+  const GradAutomatonWolframOriginal* const that,
+                                FILE* const stream,
+                                 const bool compact) {
+
+#if BUILDMODE == 0
+
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (stream == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'stream' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the JSON encoding
+  JSONNode* json = GradAutomatonEncodeAsJSON(that);
+
+  // Save the JSON
+  bool ret =
+    JSONSave(
+      json,
+      stream,
+      compact);
+
+  // Free memory
+  JSONFree(&json);
+
+  // Return success code
+  return ret;
+
+}
+
+// Load the GradAutomatonWolfraOriginal 'that' from the stream 'stream'
+// If 'that' is not null the memory is first freed
+// Return true if the GradAutomatonWolframOriginal could be loaded,
+// false else
+bool _GradAutomatonWolframOriginalLoad(
+  GradAutomatonWolframOriginal** that,
+                     FILE* const stream) {
+
+#if BUILDMODE == 0
+
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (stream == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'stream' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Declare a json to load the encoded data
+  JSONNode* json = JSONCreate();
+
+  // Load the whole encoded data
+  bool ret =
+    JSONLoad(
+      json,
+      stream);
+
+  if (ret == true) {
+
+    // Decode the data from the JSON
+    ret =
+      GradAutomatonDecodeAsJSON(
+        that,
+        json);
+
+  }
+
+  // Free the memory used by the JSON
+  JSONFree(&json);
+
+  // Return the success code
+  return ret;
+
+}
+
 // ------------- GradAutomatonNeuraNet
 
 // Create a new GradAutomatonNeuraNet with a GradSquare

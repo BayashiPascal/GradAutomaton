@@ -488,7 +488,7 @@ NeuraNet* GrAFunNeuraNetNN(
 #if BUILDMODE != 0
 static inline
 #endif
-Grad* _GradAutomatonGrad(GradAutomaton* const that) {
+Grad* _GradAutomatonGrad(const GradAutomaton* const that) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -591,7 +591,8 @@ GrACell* _GradAutomatonCellIndex(
 #if BUILDMODE != 0
 static inline
 #endif
-GradSquare* _GradAutomatonDummyGrad(GradAutomatonDummy* const that) {
+GradSquare* _GradAutomatonDummyGrad(
+  const GradAutomatonDummy* const that) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -615,7 +616,8 @@ GradSquare* _GradAutomatonDummyGrad(GradAutomatonDummy* const that) {
 #if BUILDMODE != 0
 static inline
 #endif
-GrAFunDummy* _GradAutomatonDummyFun(GradAutomatonDummy* const that) {
+GrAFunDummy* _GradAutomatonDummyFun(
+  const GradAutomatonDummy* const that) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -720,7 +722,7 @@ GrACellShort* _GradAutomatonDummyCellIndex(
 static inline
 #endif
 GradSquare* _GradAutomatonWolframOriginalGrad(
-  GradAutomatonWolframOriginal* const that) {
+  const GradAutomatonWolframOriginal* const that) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -745,7 +747,7 @@ GradSquare* _GradAutomatonWolframOriginalGrad(
 static inline
 #endif
 GrAFunWolframOriginal* _GradAutomatonWolframOriginalFun(
-  GradAutomatonWolframOriginal* const that) {
+  const GradAutomatonWolframOriginal* const that) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -849,7 +851,8 @@ GrACellShort* _GradAutomatonWolframOriginalCellIndex(
 #if BUILDMODE != 0
 static inline
 #endif
-Grad* _GradAutomatonNeuraNetGrad(GradAutomatonNeuraNet* const that) {
+Grad* _GradAutomatonNeuraNetGrad(
+  const GradAutomatonNeuraNet* const that) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -899,7 +902,7 @@ GradType GradAutomatonNeuraNetGetGradType(
 static inline
 #endif
 GrAFunNeuraNet* _GradAutomatonNeuraNetFun(
-  GradAutomatonNeuraNet* const that) {
+  const GradAutomatonNeuraNet* const that) {
 
 #if BUILDMODE == 0
   if (that == NULL) {
