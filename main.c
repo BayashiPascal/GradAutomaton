@@ -555,7 +555,6 @@ void UnitTestGrAFunNeuraNetCreateFree(void) {
 
   }
 
-  NeuraNetFree(&nn);
   VecFree(&hiddenLayers);
 
   printf("UnitTestGrAFunNeuraNetCreateFree OK\n");
@@ -588,7 +587,6 @@ void UnitTestGrAFunNeuraNetGetType(void) {
   }
 
   GrAFunFree(&fun);
-  NeuraNetFree(&nn);
   VecFree(&hiddenLayers);
 
   printf("UnitTestGrAFunNeuraNetGetType OK\n");
@@ -621,7 +619,6 @@ void UnitTestGrAFunNeuraNetNN(void) {
   }
 
   GrAFunFree(&fun);
-  NeuraNetFree(&nn);
   VecFree(&hiddenLayers);
 
   printf("UnitTestGrAFunNeuraNetNN OK\n");
@@ -1104,7 +1101,6 @@ void UnitTestGradAutomatonNeuraNetCreateFree(void) {
 
   }
 
-  NeuraNetFree(&nn);
   VecFree(&hiddenLayers);
 
   printf("UnitTestGradAutomatonNeuraNetCreateFree OK\n");
@@ -1227,7 +1223,6 @@ void UnitTestGradAutomatonNeuraNetGet(void) {
   } while(flag);
 
   GradAutomatonNeuraNetFree(&ga);
-  NeuraNetFree(&nn);
   VecFree(&hiddenLayers);
 
   printf("UnitTestGradAutomatonNeuraNetGet OK\n");
@@ -1276,7 +1271,6 @@ void UnitTestGradAutomatonNeuraNetStep(void) {
   }
 
   GradAutomatonNeuraNetFree(&ga);
-  NeuraNetFree(&nn);
   VecFree(&hiddenLayers);
 
   printf("UnitTestGradAutomatonNeuraNetStep OK\n");

@@ -380,6 +380,7 @@ void _GrAFunNeuraNetFree(GrAFunNeuraNet** that) {
   }
 
   // Free memory
+  NeuraNetFree(&((*that)->nn));
   _GrAFunFreeStatic((GrAFun*)(*that));
   free(*that);
   *that = NULL;
@@ -1432,3 +1433,197 @@ void _GradAutomatonNeuraNetStep(GradAutomatonNeuraNet* const that) {
   GradAutomatonSwitchAllStatus(that);
 
 }
+
+// JSON encoding of GradAutomatonNeuraNet 'that'
+JSONNode* _GradAutomatonNeuraNetEncodeAsJSON(
+  const GradAutomatonNeuraNet* const that) {
+
+#if BUILDMODE == 0
+
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Create the JSON structure
+  JSONNode* json = JSONCreate();
+
+  // Declare a buffer to convert value into string
+  char val[100];
+
+  // Encode the size
+
+
+  // Return the created JSON
+  return json;
+
+}
+
+// Function which decode from JSON encoding 'json' to 'that'
+bool _GradAutomatonNeuraNetDecodeAsJSON(
+  GradAutomatonNeuraNet** that,
+           const JSONNode* const json) {
+
+#if BUILDMODE == 0
+
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (json == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'json' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // If 'that' is already allocated
+  if (*that != NULL) {
+
+    // Free memory
+    GradAutomatonNeuraNetFree(that);
+
+  }
+
+  // Decode the rule
+
+  // Create the GradAutomatonNeuraNet
+  *that =
+    GradAutomatonCreateNeuraNet(
+      rule,
+      size);
+
+  // Return the success code
+  return true;
+
+}
+
+// Save the GradAutomatonNeuraNet 'that' to the stream 'stream'
+// If 'compact' equals true it saves in compact form, else it saves in
+// readable form
+// Return true if the GradAutomatonNeuraNet could be saved,
+// false else
+bool _GradAutomatonNeuraNetSave(
+  const GradAutomatonNeuraNet* const that,
+                         FILE* const stream,
+                          const bool compact) {
+
+#if BUILDMODE == 0
+
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (stream == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'stream' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Get the JSON encoding
+  JSONNode* json = GradAutomatonEncodeAsJSON(that);
+
+  // Save the JSON
+  bool ret =
+    JSONSave(
+      json,
+      stream,
+      compact);
+
+  // Free memory
+  JSONFree(&json);
+
+  // Return success code
+  return ret;
+
+}
+
+// Load the GradAutomatonWolfraOriginal 'that' from the stream 'stream'
+// If 'that' is not null the memory is first freed
+// Return true if the GradAutomatonNeuraNet could be loaded,
+// false else
+bool _GradAutomatonNeuraNetLoad(
+  GradAutomatonNeuraNet** that,
+              FILE* const stream) {
+
+#if BUILDMODE == 0
+
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (stream == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'stream' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Declare a json to load the encoded data
+  JSONNode* json = JSONCreate();
+
+  // Load the whole encoded data
+  bool ret =
+    JSONLoad(
+      json,
+      stream);
+
+  if (ret == true) {
+
+    // Decode the data from the JSON
+    ret =
+      GradAutomatonDecodeAsJSON(
+        that,
+        json);
+
+  }
+
+  // Free the memory used by the JSON
+  JSONFree(&json);
+
+  // Return the success code
+  return ret;
+
+}
+

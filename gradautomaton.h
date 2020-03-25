@@ -706,6 +706,33 @@ GrACellFloat* _GradAutomatonNeuraNetCellIndex(
   GradAutomatonNeuraNet* const that,
                     const long iCell);
 
+// JSON encoding of GradAutomatonNeuraNet 'that'
+JSONNode* _GradAutomatonNeuraNetEncodeAsJSON(
+  const GradAutomatonNeuraNet* const that);
+
+// Function which decode from JSON encoding 'json' to 'that'
+bool _GradAutomatonNeuraNetDecodeAsJSON(
+  GradAutomatonNeuraNet** that,
+    const JSONNode* const json);
+
+// Save the GradAutomatonNeuraNet 'that' to the stream 'stream'
+// If 'compact' equals true it saves in compact form, else it saves in
+// readable form
+// Return true if the GradAutomatonNeuraNet could be saved,
+// false else
+bool _GradAutomatonNeuraNetSave(
+  const GradAutomatonNeuraNet* const that,
+                         FILE* const stream,
+                          const bool compact);
+
+// Load the GradAutomatonWolfraOriginal 'that' from the stream 'stream'
+// If 'that' is not null the memory is first freed
+// Return true if the GradAutomatonNeuraNet could be loaded,
+// false else
+bool _GradAutomatonNeuraNetLoad(
+  GradAutomatonNeuraNet** that,
+              FILE* const stream);
+
 // ================= Polymorphism ==================
 
 #define GradAutomatonSwitchAllStatus(G) _Generic(G, \
@@ -782,11 +809,17 @@ GrACellFloat* _GradAutomatonNeuraNetCellIndex(
     _GradAutomatonWolframOriginalEncodeAsJSON, \
   const GradAutomatonWolframOriginal* :\
     _GradAutomatonWolframOriginalEncodeAsJSON, \
+  GradAutomatonNeuraNet* : \
+    _GradAutomatonNeuraNetEncodeAsJSON, \
+  const GradAutomatonNeuraNet* :\
+    _GradAutomatonNeuraNetEncodeAsJSON, \
   default: PBErrInvalidPolymorphism)(G)
 
 #define GradAutomatonDecodeAsJSON(G, J) _Generic(G, \
   GradAutomatonWolframOriginal** : \
     _GradAutomatonWolframOriginalDecodeAsJSON, \
+  GradAutomatonNeuraNet** : \
+    _GradAutomatonNeuraNetDecodeAsJSON, \
   default: PBErrInvalidPolymorphism)(G, J)
 
 #define GradAutomatonSave(G, S, C) _Generic(G, \
@@ -794,13 +827,17 @@ GrACellFloat* _GradAutomatonNeuraNetCellIndex(
     _GradAutomatonWolframOriginalSave, \
   const GradAutomatonWolframOriginal* :\
     _GradAutomatonWolframOriginalSave, \
+  GradAutomatonNeuraNet* : \
+    _GradAutomatonNeuraNetSave, \
+  const GradAutomatonNeuraNet* :\
+    _GradAutomatonNeuraNetSave, \
   default: PBErrInvalidPolymorphism)(G, S, C)
 
 #define GradAutomatonLoad(G, S) _Generic(G, \
   GradAutomatonWolframOriginal** : \
     _GradAutomatonWolframOriginalLoad, \
-  const GradAutomatonWolframOriginal** :\
-    _GradAutomatonWolframOriginalLoad, \
+  GradAutomatonNeuraNet** : \
+    _GradAutomatonNeuraNetLoad, \
   default: PBErrInvalidPolymorphism)(G, S)
 
 // ================ static inliner ====================
