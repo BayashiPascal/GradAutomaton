@@ -351,7 +351,9 @@ void _GrAFunWolframOriginalApply(
 
 // Create a new GrAFunNeuraNet
 GrAFunNeuraNet* GrAFunCreateNeuraNet(
-  NeuraNet* const nn) {
+             const int nbIn,
+             const int nbOut,
+  const VecLong* const hiddenLayers) {
 
   // Declare the new GrAFun
   GrAFunNeuraNet* that =
@@ -361,9 +363,13 @@ GrAFunNeuraNet* GrAFunCreateNeuraNet(
 
   // Set properties
   that->grAFun = GrAFunCreateStatic(GrAFunTypeNeuraNet);
-  that->nn = nn;
+  that->nn =
+    NeuraNetCreateFullyConnected(
+      nbIn,
+      nbOut,
+      hiddenLayers);
 
-  // Return the new GrAFun
+  // Return the new GrAFunNeuraNet
   return that;
 
 }
@@ -1231,7 +1237,7 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetSquare(
                const long dimStatus,
   const VecShort2D* const dimGrad,
                const bool diagLink,
-          NeuraNet* const nn) {
+               const long nbHiddenLayers) {
 
   // Allocate memory for the new GradAutomatonNeuraNet
   GradAutomatonNeuraNet* that =
@@ -1244,7 +1250,35 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetSquare(
     (Grad*)GradSquareCreate(
       dimGrad,
       diagLink);
-  GrAFun* fun = (GrAFun*)GrAFunCreateNeuraNet(nn);
+  int nbIn = 0;
+  if (diagLink == true) {
+
+    nbIn = dimStatus * 9;
+
+  } else {
+
+    nbIn = dimStatus * 5;
+
+  }
+
+  int nbOut = dimStatus;
+  VecLong* hiddenLayers = VecLongCreate(nbHiddenLayers);
+  for (
+    int iLayer = nbHiddenLayers;
+    iLayer--;) {
+
+    VecSet(
+      hiddenLayers,
+      iLayer,
+      nbIn);
+
+  }
+
+  GrAFun* fun =
+    (GrAFun*)GrAFunCreateNeuraNet(
+      nbIn,
+      nbOut,
+      hiddenLayers);
 
   // Initialize the properties
   that->gradAutomaton =
@@ -1285,7 +1319,7 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetHexa(
                const long dimStatus,
   const VecShort2D* const dimGrad,
        const GradHexaType gradType,
-          NeuraNet* const nn) {
+               const long nbHiddenLayers) {
 
   // Allocate memory for the new GradAutomatonNeuraNet
   GradAutomatonNeuraNet* that =
@@ -1318,7 +1352,25 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetHexa(
 
   }
 
-  GrAFun* fun = (GrAFun*)GrAFunCreateNeuraNet(nn);
+  int nbIn = dimStatus * 6;
+  int nbOut = dimStatus;
+  VecLong* hiddenLayers = VecLongCreate(nbHiddenLayers);
+  for (
+    int iLayer = nbHiddenLayers;
+    iLayer--;) {
+
+    VecSet(
+      hiddenLayers,
+      iLayer,
+      nbIn);
+
+  }
+
+  GrAFun* fun =
+    (GrAFun*)GrAFunCreateNeuraNet(
+      nbIn,
+      nbOut,
+      hiddenLayers);
 
   // Initialize the properties
   that->gradAutomaton =
@@ -1385,7 +1437,6 @@ void GradAutomatonNeuraNetFree(
 
   // Free memory
   GradSquareFree((GradSquare**)&((*that)->gradAutomaton.grad));
-  _GrAFunNeuraNetFree((GrAFunNeuraNet**)&((*that)->gradAutomaton.fun));
   free(*that);
   *that = NULL;
 
@@ -1456,10 +1507,10 @@ JSONNode* _GradAutomatonNeuraNetEncodeAsJSON(
   JSONNode* json = JSONCreate();
 
   // Declare a buffer to convert value into string
-  char val[100];
+  //char val[100];
+  (void)that;
 
   // Encode the size
-
 
   // Return the created JSON
   return json;
@@ -1469,7 +1520,7 @@ JSONNode* _GradAutomatonNeuraNetEncodeAsJSON(
 // Function which decode from JSON encoding 'json' to 'that'
 bool _GradAutomatonNeuraNetDecodeAsJSON(
   GradAutomatonNeuraNet** that,
-           const JSONNode* const json) {
+    const JSONNode* const json) {
 
 #if BUILDMODE == 0
 
@@ -1506,10 +1557,11 @@ bool _GradAutomatonNeuraNetDecodeAsJSON(
   // Decode the rule
 
   // Create the GradAutomatonNeuraNet
-  *that =
-    GradAutomatonCreateNeuraNet(
-      rule,
-      size);
+  //*that =
+  //  GradAutomatonCreateNeuraNet(
+  //    rule,
+  //    size);
+  (void)json;
 
   // Return the success code
   return true;
@@ -1626,4 +1678,3 @@ bool _GradAutomatonNeuraNetLoad(
   return ret;
 
 }
-

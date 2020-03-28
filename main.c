@@ -525,16 +525,16 @@ void UnitTestGrAFunNeuraNetCreateFree(void) {
     hiddenLayers,
     0,
     1);
-  NeuraNet* nn =
-    NeuraNetCreateFullyConnected(
+  GrAFunNeuraNet* fun =
+    GrAFunCreateNeuraNet(
       nbIn,
       nbOut,
       hiddenLayers);
-  GrAFunNeuraNet* fun = GrAFunCreateNeuraNet(nn);
   if (
     fun == NULL ||
     fun->grAFun.type != GrAFunTypeNeuraNet ||
-    fun->nn != nn) {
+    NNGetNbInput(fun->nn) != nbIn ||
+    NNGetNbOutput(fun->nn) != nbOut) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
@@ -570,12 +570,11 @@ void UnitTestGrAFunNeuraNetGetType(void) {
     hiddenLayers,
     0,
     1);
-  NeuraNet* nn =
-    NeuraNetCreateFullyConnected(
+  GrAFunNeuraNet* fun =
+    GrAFunCreateNeuraNet(
       nbIn,
       nbOut,
       hiddenLayers);
-  GrAFunNeuraNet* fun = GrAFunCreateNeuraNet(nn);
   if (GrAFunGetType(fun) != GrAFunTypeNeuraNet) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
@@ -602,13 +601,12 @@ void UnitTestGrAFunNeuraNetNN(void) {
     hiddenLayers,
     0,
     1);
-  NeuraNet* nn =
-    NeuraNetCreateFullyConnected(
+  GrAFunNeuraNet* fun =
+    GrAFunCreateNeuraNet(
       nbIn,
       nbOut,
       hiddenLayers);
-  GrAFunNeuraNet* fun = GrAFunCreateNeuraNet(nn);
-  if (GrAFunNeuraNetNN(fun) != nn) {
+  if (GrAFunNeuraNetNN(fun) != fun->nn) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
@@ -1055,24 +1053,13 @@ void UnitTestGradAutomatonNeuraNetCreateFree(void) {
     1,
     2);
   bool diagLink = true;
-  int nbIn = dimStatus * 9;
-  int nbOut = dimStatus;
-  VecLong* hiddenLayers = VecLongCreate(1);
-  VecSet(
-    hiddenLayers,
-    0,
-    1);
-  NeuraNet* nn =
-    NeuraNetCreateFullyConnected(
-      nbIn,
-      nbOut,
-      hiddenLayers);
+  long nbHiddenLayers = 1;
   GradAutomatonNeuraNet* ga =
     GradAutomatonCreateNeuraNetSquare(
       dimStatus,
       &dimGrad,
       diagLink,
-      nn);
+      nbHiddenLayers);
   if (
     ga == NULL ||
     ga->gradAutomaton.grad == NULL ||
@@ -1101,8 +1088,6 @@ void UnitTestGradAutomatonNeuraNetCreateFree(void) {
 
   }
 
-  VecFree(&hiddenLayers);
-
   printf("UnitTestGradAutomatonNeuraNetCreateFree OK\n");
 
 }
@@ -1120,24 +1105,13 @@ void UnitTestGradAutomatonNeuraNetGet(void) {
     1,
     2);
   bool diagLink = true;
-  int nbIn = dimStatus * 9;
-  int nbOut = dimStatus;
-  VecLong* hiddenLayers = VecLongCreate(1);
-  VecSet(
-    hiddenLayers,
-    0,
-    1);
-  NeuraNet* nn =
-    NeuraNetCreateFullyConnected(
-      nbIn,
-      nbOut,
-      hiddenLayers);
+  long nbHiddenLayers = 1;
   GradAutomatonNeuraNet* ga =
     GradAutomatonCreateNeuraNetSquare(
       dimStatus,
       &dimGrad,
       diagLink,
-      nn);
+      nbHiddenLayers);
   if (GradAutomatonGrad(ga) != ga->gradAutomaton.grad) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
@@ -1223,7 +1197,6 @@ void UnitTestGradAutomatonNeuraNetGet(void) {
   } while(flag);
 
   GradAutomatonNeuraNetFree(&ga);
-  VecFree(&hiddenLayers);
 
   printf("UnitTestGradAutomatonNeuraNetGet OK\n");
 
@@ -1242,24 +1215,13 @@ void UnitTestGradAutomatonNeuraNetStep(void) {
     1,
     2);
   bool diagLink = true;
-  int nbIn = dimStatus * 9;
-  int nbOut = dimStatus;
-  VecLong* hiddenLayers = VecLongCreate(1);
-  VecSet(
-    hiddenLayers,
-    0,
-    1);
-  NeuraNet* nn =
-    NeuraNetCreateFullyConnected(
-      nbIn,
-      nbOut,
-      hiddenLayers);
+  long nbHiddenLayers = 1;
   GradAutomatonNeuraNet* ga =
     GradAutomatonCreateNeuraNetSquare(
       dimStatus,
       &dimGrad,
       diagLink,
-      nn);
+      nbHiddenLayers);
 
   for (
     long iStep = 0;
@@ -1271,7 +1233,6 @@ void UnitTestGradAutomatonNeuraNetStep(void) {
   }
 
   GradAutomatonNeuraNetFree(&ga);
-  VecFree(&hiddenLayers);
 
   printf("UnitTestGradAutomatonNeuraNetStep OK\n");
 

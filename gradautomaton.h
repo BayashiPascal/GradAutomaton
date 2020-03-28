@@ -367,7 +367,9 @@ typedef struct GrAFunNeuraNet {
 
 // Create a new GrAFunNeuraNet
 GrAFunNeuraNet* GrAFunCreateNeuraNet(
-  NeuraNet* const nn);
+             const int nbIn,
+             const int nbOut,
+  const VecLong* const hiddenLayers);
 
 // Free the memory used by the GrAFunNeuraNet 'that'
 void _GrAFunNeuraNetFree(GrAFunNeuraNet** that);
@@ -651,14 +653,14 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetSquare(
                const long dimStatus,
   const VecShort2D* const dimGrad,
                const bool diagLink,
-          NeuraNet* const nn);
+               const long nbHiddenLayers);
 
 // Create a new GradAutomatonNeuraNet with a GradHexa
 GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetHexa(
                const long dimStatus,
   const VecShort2D* const dimGrad,
        const GradHexaType gradType,
-          NeuraNet* const nn);
+               const long nbHiddenLayers);
 
 // Free the memory used by the GradAutomatonNeuraNet 'that'
 void GradAutomatonNeuraNetFree(
