@@ -433,7 +433,7 @@ typedef struct GradAutomaton {
   GradAutomatonType type;
 
   // Dimension of the status vector of each cell
-  long dim;
+  long dimStatus;
 
   // Grad
   Grad* grad;
@@ -449,7 +449,8 @@ typedef struct GradAutomaton {
 GradAutomaton GradAutomatonCreateStatic(
   const GradAutomatonType type,
               Grad* const grad,
-            GrAFun* const fun);
+            GrAFun* const fun,
+               const long dimStatus);
 
 // Return the Grad of the GradAutomaton 'that'
 #if BUILDMODE != 0
@@ -477,6 +478,12 @@ GrACell* _GradAutomatonCellIndex(
 // Switch the status of all the cells of the GradAutomaton 'that'
 void _GradAutomatonSwitchAllStatus(GradAutomaton* const that);
 
+// Return the dimension of the status of the GradAutomaton 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+long _GradAutomatonGetDimStatus(const GradAutomaton* const that);
+
 // -------------- GradAutomatonDummy
 
 // ================= Define ==================
@@ -492,12 +499,6 @@ typedef struct GradAutomatonDummy {
 } GradAutomatonDummy;
 
 // ================ Functions declaration ====================
-
-// Create a new static GradAutomaton
-GradAutomaton GradAutomatonCreateStatic(
-  const GradAutomatonType type,
-              Grad* const grad,
-            GrAFun* const fun);
 
 // Create a new GradAutomatonDummy
 GradAutomatonDummy* GradAutomatonCreateDummy();
@@ -841,6 +842,21 @@ bool _GradAutomatonNeuraNetLoad(
   GradAutomatonNeuraNet** : \
     _GradAutomatonNeuraNetLoad, \
   default: PBErrInvalidPolymorphism)(G, S)
+
+#define GradAutomatonGetDimStatus(G) _Generic(G, \
+  GradAutomaton* : \
+    _GradAutomatonGetDimStatus, \
+  const GradAutomaton* :\
+    _GradAutomatonGetDimStatus, \
+  GradAutomatonWolframOriginal* : \
+    _GradAutomatonGetDimStatus, \
+  const GradAutomatonWolframOriginal* :\
+    _GradAutomatonGetDimStatus, \
+  GradAutomatonNeuraNet* : \
+    _GradAutomatonGetDimStatus, \
+  const GradAutomatonNeuraNet* :\
+    _GradAutomatonGetDimStatus, \
+  default: PBErrInvalidPolymorphism)(((const GradAutomaton*)(G)))
 
 // ================ static inliner ====================
 

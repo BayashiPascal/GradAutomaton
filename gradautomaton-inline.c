@@ -583,6 +583,30 @@ GrACell* _GradAutomatonCellIndex(
 
 }
 
+// Return the dimension of the status of the GradAutomaton 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+long _GradAutomatonGetDimStatus(const GradAutomaton* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Return the dimension of the status
+  return that->dimStatus;
+
+}
+
 // -------------- GradAutomatonDummy
 
 // ================ Functions implementation ====================

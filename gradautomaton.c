@@ -543,7 +543,8 @@ void _GrAFunNeuraNetApply(
 GradAutomaton GradAutomatonCreateStatic(
   const GradAutomatonType type,
               Grad* const grad,
-            GrAFun* const fun) {
+            GrAFun* const fun,
+               const long dimStatus) {
 
 #if BUILDMODE == 0
   if (grad == NULL) {
@@ -575,6 +576,7 @@ GradAutomaton GradAutomatonCreateStatic(
   that.type = type;
   that.grad = grad;
   that.fun = fun;
+  that.dimStatus = dimStatus;
 
   // Return the new GradAutomaton
   return that;
@@ -647,11 +649,13 @@ GradAutomatonDummy* GradAutomatonCreateDummy() {
   GrAFun* fun = (GrAFun*)GrAFunCreateDummy();
 
   // Initialize the properties
+  long dimStatus = 1;
   that->gradAutomaton =
     GradAutomatonCreateStatic(
       GradAutomatonTypeDummy,
       grad,
-      fun);
+      fun,
+      dimStatus);
 
   // Add a GrACell to each cell of the Grad
   VecShort2D pos = VecShortCreateStatic2D();
@@ -663,7 +667,6 @@ GradAutomatonDummy* GradAutomatonCreateDummy() {
         grad,
         &pos);
 
-    long dimStatus = 1;
     GrACellShort* cellStatus =
       GrACellCreateShort(
         dimStatus,
@@ -776,11 +779,13 @@ GradAutomatonWolframOriginal* GradAutomatonCreateWolframOriginal(
   GrAFun* fun = (GrAFun*)GrAFunCreateWolframOriginal(rule);
 
   // Initialize the properties
+  long dimStatus = 1;
   that->gradAutomaton =
     GradAutomatonCreateStatic(
       GradAutomatonTypeWolframOriginal,
       grad,
-      fun);
+      fun,
+      dimStatus);
 
   // Get the index of the cell in th center of the Grad
   long iCellCenter = size / 2;
@@ -795,7 +800,6 @@ GradAutomatonWolframOriginal* GradAutomatonCreateWolframOriginal(
         grad,
         iCell);
 
-    long dimStatus = 1;
     GrACellShort* cellStatus =
       GrACellCreateShort(
         dimStatus,
@@ -1285,7 +1289,8 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetSquare(
     GradAutomatonCreateStatic(
       GradAutomatonTypeNeuraNet,
       grad,
-      fun);
+      fun,
+      dimStatus);
 
   // Add a GrACell to each cell of the Grad
   long area = GradGetArea(GradAutomatonGrad(that));
@@ -1377,7 +1382,8 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetHexa(
     GradAutomatonCreateStatic(
       GradAutomatonTypeNeuraNet,
       grad,
-      fun);
+      fun,
+      dimStatus);
 
   // Add a GrACell to each cell of the Grad
   long area = GradGetArea(GradAutomatonGrad(that));
@@ -1507,10 +1513,26 @@ JSONNode* _GradAutomatonNeuraNetEncodeAsJSON(
   JSONNode* json = JSONCreate();
 
   // Declare a buffer to convert value into string
-  //char val[100];
-  (void)that;
+  char val[100];
 
-  // Encode the size
+  // Encode the type of the Grad
+  GradType typeGrad = GradGetType(GradAutomatonGrad(that));
+  sprintf(
+    val,
+    "%d",
+    typeGrad);
+  JSONAddProp(
+    json,
+    "typeGrad",
+    val);
+
+  // Encode the dimensions of the Grad
+  const VecShort2D* dimGrad = GradDim(GradAutomatonGrad(that));
+  JSONNode* dimGradJSON = VecEncodeAsJSON((VecShort*)dimGrad);
+  JSONAddProp(
+    json,
+    "dimGrad",
+    dimGradJSON);
 
   // Return the created JSON
   return json;
