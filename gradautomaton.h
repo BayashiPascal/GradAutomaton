@@ -645,6 +645,9 @@ typedef struct GradAutomatonNeuraNet {
   // Parent GradAutomaton
   GradAutomaton gradAutomaton;
 
+  // Number of hidden layers
+  long nbHiddenLayers;
+
 } GradAutomatonNeuraNet;
 
 // ================ Functions declaration ====================
@@ -735,6 +738,13 @@ bool _GradAutomatonNeuraNetSave(
 bool _GradAutomatonNeuraNetLoad(
   GradAutomatonNeuraNet** that,
               FILE* const stream);
+
+// Return the number of hidden layers of the GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+long GradAutomatonNeuraNetGetNbHiddenLayers(
+  const GradAutomatonNeuraNet* const that);
 
 // ================= Polymorphism ==================
 

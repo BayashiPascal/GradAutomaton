@@ -1,8 +1,8 @@
 \contentsline {section}{\numberline {1}Definitions}{2}
 \contentsline {section}{\numberline {2}Interface}{2}
-\contentsline {section}{\numberline {3}Code}{15}
-\contentsline {subsection}{\numberline {3.1}gradautomaton.c}{15}
-\contentsline {subsection}{\numberline {3.2}gradautomaton-inline.c}{38}
-\contentsline {section}{\numberline {4}Makefile}{54}
-\contentsline {section}{\numberline {5}Unit tests}{55}
-\contentsline {section}{\numberline {6}Unit tests output}{76}
+\contentsline {section}{\numberline {3}Code}{16}
+\contentsline {subsection}{\numberline {3.1}gradautomaton.c}{16}
+\contentsline {subsection}{\numberline {3.2}gradautomaton-inline.c}{47}
+\contentsline {section}{\numberline {4}Makefile}{64}
+\contentsline {section}{\numberline {5}Unit tests}{64}
+\contentsline {section}{\numberline {6}Unit tests output}{88}

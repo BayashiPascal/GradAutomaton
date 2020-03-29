@@ -1238,11 +1238,185 @@ void UnitTestGradAutomatonNeuraNetStep(void) {
 
 }
 
+void UnitTestGradAutomatonNeuraNetSquareLoadSave(void) {
+
+  long dimStatus = 3;
+  VecShort2D dimGrad = VecShortCreateStatic2D();
+  VecSet(
+    &dimGrad,
+    0,
+    2);
+  VecSet(
+    &dimGrad,
+    1,
+    2);
+  bool diagLink = false;
+  long nbHiddenLayers = 1;
+  GradAutomatonNeuraNet* ga =
+    GradAutomatonCreateNeuraNetSquare(
+      dimStatus,
+      &dimGrad,
+      diagLink,
+      nbHiddenLayers);
+
+  FILE* fp =
+    fopen(
+      "./unitTestGradAutomatonNeuraNetSquareSave.json",
+      "w");
+  bool compact = false;
+  bool ret =
+    GradAutomatonSave(
+      ga,
+      fp,
+      compact);
+  if (ret == false) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetSave failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GradAutomatonNeuraNetFree(&ga);
+  fclose(fp);
+  fp =
+    fopen(
+      "./unitTestGradAutomatonNeuraNetSquareSave.json",
+      "r");
+
+  ret =
+    GradAutomatonLoad(
+      &ga,
+      fp);
+
+  if (
+    ret == false) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetLoad failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  const VecShort2D* dim = GradDim(GradAutomatonGrad(ga));
+  bool sameSize =
+    VecIsEqual(
+      &dimGrad,
+      dim);
+  if (sameSize == false) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetLoad failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GradAutomatonNeuraNetFree(&ga);
+  fclose(fp);
+
+  printf("UnitTestGradAutomatonNeuraNetSquareLoadSave OK\n");
+
+}
+
+void UnitTestGradAutomatonNeuraNetHexaLoadSave(void) {
+
+  long dimStatus = 3;
+  VecShort2D dimGrad = VecShortCreateStatic2D();
+  VecSet(
+    &dimGrad,
+    0,
+    2);
+  VecSet(
+    &dimGrad,
+    1,
+    2);
+  long nbHiddenLayers = 1;
+  GradHexaType hexaType = GradHexaTypeOddQ;
+  GradAutomatonNeuraNet* ga =
+    GradAutomatonCreateNeuraNetHexa(
+      dimStatus,
+      &dimGrad,
+      hexaType,
+      nbHiddenLayers);
+
+  FILE* fp =
+    fopen(
+      "./unitTestGradAutomatonNeuraNetHexaSave.json",
+      "w");
+  bool compact = false;
+  bool ret =
+    GradAutomatonSave(
+      ga,
+      fp,
+      compact);
+  if (ret == false) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetSave failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GradAutomatonNeuraNetFree(&ga);
+  fclose(fp);
+  fp =
+    fopen(
+      "./unitTestGradAutomatonNeuraNetHexaSave.json",
+      "r");
+
+  ret =
+    GradAutomatonLoad(
+      &ga,
+      fp);
+
+  if (
+    ret == false) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetLoad failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  const VecShort2D* dim = GradDim(GradAutomatonGrad(ga));
+  bool sameSize =
+    VecIsEqual(
+      &dimGrad,
+      dim);
+  if (sameSize == false) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetLoad failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  GradAutomatonNeuraNetFree(&ga);
+  fclose(fp);
+
+  printf("UnitTestGradAutomatonNeuraNetHexaLoadSave OK\n");
+
+}
+
 void UnitTestGradAutomatonNeuraNet(void) {
 
   UnitTestGradAutomatonNeuraNetCreateFree();
   UnitTestGradAutomatonNeuraNetGet();
   UnitTestGradAutomatonNeuraNetStep();
+  UnitTestGradAutomatonNeuraNetSquareLoadSave();
+  UnitTestGradAutomatonNeuraNetHexaLoadSave();
   printf("UnitTestGradAutomatonNeuraNet OK\n");
 
 }

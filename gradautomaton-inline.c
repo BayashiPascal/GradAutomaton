@@ -1021,3 +1021,28 @@ GrACellFloat* _GradAutomatonNeuraNetCellIndex(
   return (GrACellFloat*)GradCellData(cell);
 
 }
+
+// Return the number of hidden layers of the GradAutomatonNeuraNet 'that'
+#if BUILDMODE != 0
+static inline
+#endif
+long GradAutomatonNeuraNetGetNbHiddenLayers(
+  const GradAutomatonNeuraNet* const that) {
+
+#if BUILDMODE == 0
+  if (that == NULL) {
+
+    GradAutomatonErr->_type = PBErrTypeNullPointer;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "'that' is null");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+#endif
+
+  // Return the number of hidden layers
+  return that->nbHiddenLayers;
+
+}

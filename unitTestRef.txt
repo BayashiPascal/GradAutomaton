@@ -123,10 +123,13 @@ UnitTestGradAutomatonWolframOriginalGet OK
 [* * * * * * * *        *  *     * *** * **** *  ** **  *  * **   *** **      * * *** * *** *  *  * *]
 [* * * * * * * **      ******   ** *   * *    ****  * ****** * * **   * *    ** * *   * *   ******* *]
 UnitTestGradAutomatonWolframOriginalStepPrintln OK
+UnitTestGradAutomatonWolframOriginalLoadSave OK
 UnitTestGradAutomatonWolframOriginal OK
 UnitTestGradAutomatonNeuraNetCreateFree OK
 UnitTestGradAutomatonNeuraNetGet OK
 UnitTestGradAutomatonNeuraNetStep OK
+UnitTestGradAutomatonNeuraNetSquareLoadSave OK
+UnitTestGradAutomatonNeuraNetHexaLoadSave OK
 UnitTestGradAutomatonNeuraNet OK
 UnitTestGradAutomaton OK
 UnitTestAll OK

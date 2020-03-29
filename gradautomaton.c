@@ -1285,6 +1285,7 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetSquare(
       hiddenLayers);
 
   // Initialize the properties
+  that->nbHiddenLayers = nbHiddenLayers;
   that->gradAutomaton =
     GradAutomatonCreateStatic(
       GradAutomatonTypeNeuraNet,
@@ -1378,6 +1379,7 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetHexa(
       hiddenLayers);
 
   // Initialize the properties
+  that->nbHiddenLayers = nbHiddenLayers;
   that->gradAutomaton =
     GradAutomatonCreateStatic(
       GradAutomatonTypeNeuraNet,
@@ -1534,6 +1536,69 @@ JSONNode* _GradAutomatonNeuraNetEncodeAsJSON(
     "dimGrad",
     dimGradJSON);
 
+  // Encode the dimensions of the status
+  long dimStatus = GradAutomatonGetDimStatus(that);
+  sprintf(
+    val,
+    "%ld",
+    dimStatus);
+  JSONAddProp(
+    json,
+    "dimStatus",
+    val);
+
+  // Encode the number of hidden layers
+  long nbHiddenLayers = GradAutomatonNeuraNetGetNbHiddenLayers(that);
+  sprintf(
+    val,
+    "%ld",
+    nbHiddenLayers);
+  JSONAddProp(
+    json,
+    "nbHiddenLayers",
+    val);
+
+  // If the associated grad is of type hexa
+  if (typeGrad == GradTypeHexa) {
+
+    // Encode the type of GradHexa
+    GradHexaType typeGradHexa =
+      GradHexaGetType((GradHexa*)GradAutomatonGrad(that));
+    sprintf(
+      val,
+      "%d",
+      typeGradHexa);
+    JSONAddProp(
+      json,
+      "typeGradHexa",
+      val);
+
+  // Else, if the associated grad is of type hexa
+  } else if (typeGrad == GradTypeSquare) {
+
+    // Encode the diagonal link flag
+    bool diagLink =
+      GradSquareHasDiagonalLink((GradSquare*)GradAutomatonGrad(that));
+    sprintf(
+      val,
+      "%d",
+      diagLink);
+    JSONAddProp(
+      json,
+      "diagLink",
+      val);
+
+  }
+
+  // Encode the NeuraNet
+  const NeuraNet* nn =
+    GrAFunNeuraNetNN((GrAFunNeuraNet*)(GradAutomatonFun(that)));
+  JSONNode* nnJSON = NNEncodeAsJSON(nn);
+  JSONAddProp(
+    json,
+    "nn",
+    nnJSON);
+
   // Return the created JSON
   return json;
 
@@ -1576,14 +1641,144 @@ bool _GradAutomatonNeuraNetDecodeAsJSON(
 
   }
 
-  // Decode the rule
+  // Decode the type of grad
+  JSONNode* prop =
+    JSONProperty(
+      json,
+      "typeGrad");
+  if (prop == NULL) {
 
-  // Create the GradAutomatonNeuraNet
-  //*that =
-  //  GradAutomatonCreateNeuraNet(
-  //    rule,
-  //    size);
-  (void)json;
+    return false;
+
+  }
+
+  GradType typeGrad = atoi(JSONLblVal(prop));
+
+  // Decode the dimension of the status
+  prop =
+    JSONProperty(
+      json,
+      "dimStatus");
+  if (prop == NULL) {
+
+    return false;
+
+  }
+
+  long dimStatus = atol(JSONLblVal(prop));
+
+  // Decode the dimensions of the Grad
+  prop =
+    JSONProperty(
+      json,
+      "dimGrad");
+  if (prop == NULL) {
+
+    return false;
+
+  }
+
+  VecShort2D* dimGrad = NULL;
+  bool ret =
+    VecDecodeAsJSON(
+      (VecShort**)(&dimGrad),
+      prop);
+  if (ret == false) {
+
+    return false;
+
+  }
+
+  // Decode the number of hidden layers
+  prop =
+    JSONProperty(
+      json,
+      "nbHiddenLayers");
+  if (prop == NULL) {
+
+    return false;
+
+  }
+
+  long nbHiddenLayers = atol(JSONLblVal(prop));
+
+  // If the associated grad is of type hexa
+  if (typeGrad == GradTypeHexa) {
+
+    // Decode the type of grad hexa
+    prop =
+      JSONProperty(
+        json,
+        "typeGradHexa");
+    if (prop == NULL) {
+
+      return false;
+
+    }
+
+    GradHexaType typeGradHexa = atoi(JSONLblVal(prop));
+
+    // Create the GradAutomatonNeuraNet
+    *that =
+      GradAutomatonCreateNeuraNetHexa(
+        dimStatus,
+        dimGrad,
+        typeGradHexa,
+        nbHiddenLayers);
+
+  // Else, if the associated grad is of type square
+  } else if (typeGrad == GradTypeSquare) {
+
+    // Decode the diagonal link flag
+    prop =
+      JSONProperty(
+        json,
+        "diagLink");
+    if (prop == NULL) {
+
+      return false;
+
+    }
+
+    bool diagLink = atoi(JSONLblVal(prop));
+
+    // Create the GradAutomatonNeuraNet
+    *that =
+      GradAutomatonCreateNeuraNetSquare(
+        dimStatus,
+        dimGrad,
+        diagLink,
+        nbHiddenLayers);
+
+  } else {
+
+    return false;
+
+  }
+
+  // Load the NeuraNet
+  prop =
+    JSONProperty(
+      json,
+      "nn");
+  if (prop == NULL) {
+
+    return false;
+
+  }
+
+  ret =
+    NNDecodeAsJSON(
+      &(((GrAFunNeuraNet*)GradAutomatonFun(*that))->nn),
+      prop);
+  if (ret == false) {
+
+    return false;
+
+  }
+
+  // Free memory
+  VecFree((VecShort**)(&dimGrad));
 
   // Return the success code
   return true;
