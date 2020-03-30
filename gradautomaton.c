@@ -577,6 +577,7 @@ GradAutomaton GradAutomatonCreateStatic(
   that.grad = grad;
   that.fun = fun;
   that.dimStatus = dimStatus;
+  that.isStable = false;
 
   // Return the new GradAutomaton
   return that;
@@ -744,7 +745,8 @@ void _GradAutomatonDummyStep(GradAutomatonDummy* const that) {
 
 #endif
 
-  (void)that;
+  // Update the isStable flag
+  ((GradAutomaton*)that)->isStable = true;
 
 }
 
@@ -893,6 +895,9 @@ void _GradAutomatonWolframOriginalStep(
   // Get the number of cells in the grad
   long nbCell = GradGetArea(GradAutomatonGrad(that));
 
+  // Declare a variable to memorize if the GradAutomaton is stable
+  bool isStable = true;
+
   // Loop on the cell
   for (
     long iCell = nbCell;
@@ -910,7 +915,25 @@ void _GradAutomatonWolframOriginalStep(
       GradAutomatonGrad(that),
       cell);
 
+    // Update the isStable flag
+    short curStatus =
+      VecGet(
+        GrACellCurStatus(cell),
+        0);
+    short prevStatus =
+      VecGet(
+        GrACellPrevStatus(cell),
+        0);
+    if (curStatus != prevStatus) {
+
+      isStable = false;
+
+    }
+
   }
+
+  // Update the isStable flag
+  ((GradAutomaton*)that)->isStable = isStable;
 
   // Switch all the cells
   GradAutomatonSwitchAllStatus(that);
@@ -1315,6 +1338,9 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetSquare(
 
   }
 
+  // Free memory
+  VecFree(&hiddenLayers);
+
   // Return the new GradAutomatonNeuraNet
   return that;
 
@@ -1409,6 +1435,9 @@ GradAutomatonNeuraNet* GradAutomatonCreateNeuraNetHexa(
 
   }
 
+  // Free memory
+  VecFree(&hiddenLayers);
+
   // Return the new GradAutomatonNeuraNet
   return that;
 
@@ -1443,8 +1472,13 @@ void GradAutomatonNeuraNetFree(
 
   }
 
-  // Free memory
+  // Free the memory used by the Grad
   GradSquareFree((GradSquare**)&((*that)->gradAutomaton.grad));
+
+  // Free the memory used by the GrAFun
+  _GrAFunNeuraNetFree((GrAFunNeuraNet**)&((*that)->gradAutomaton.fun));
+
+  // Free memory
   free(*that);
   *that = NULL;
 
@@ -1469,6 +1503,9 @@ void _GradAutomatonNeuraNetStep(GradAutomatonNeuraNet* const that) {
   // Get the number of cells in the grad
   long nbCell = GradGetArea(GradAutomatonGrad(that));
 
+  // Declare a variable to memorize if the GradAutomaton is stable
+  bool isStable = true;
+
   // Loop on the cell
   for (
     long iCell = nbCell;
@@ -1486,7 +1523,23 @@ void _GradAutomatonNeuraNetStep(GradAutomatonNeuraNet* const that) {
       GradAutomatonGrad(that),
       cell);
 
+    // Update the isStable flag
+    VecFloat* curStatus = GrACellCurStatus(cell);
+    VecFloat* prevStatus = GrACellPrevStatus(cell);
+    bool isSame =
+      VecIsEqual(
+        curStatus,
+        prevStatus);
+    if (isSame == false) {
+
+      isStable = false;
+
+    }
+
   }
+
+  // Update the isStable flag
+  ((GradAutomaton*)that)->isStable = isStable;
 
   // Switch all the cells
   GradAutomatonSwitchAllStatus(that);

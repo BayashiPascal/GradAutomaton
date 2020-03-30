@@ -2,7 +2,7 @@
 \contentsline {section}{\numberline {2}Interface}{2}
 \contentsline {section}{\numberline {3}Code}{16}
 \contentsline {subsection}{\numberline {3.1}gradautomaton.c}{16}
-\contentsline {subsection}{\numberline {3.2}gradautomaton-inline.c}{47}
-\contentsline {section}{\numberline {4}Makefile}{64}
-\contentsline {section}{\numberline {5}Unit tests}{64}
-\contentsline {section}{\numberline {6}Unit tests output}{88}
+\contentsline {subsection}{\numberline {3.2}gradautomaton-inline.c}{48}
+\contentsline {section}{\numberline {4}Makefile}{65}
+\contentsline {section}{\numberline {5}Unit tests}{66}
+\contentsline {section}{\numberline {6}Unit tests output}{90}

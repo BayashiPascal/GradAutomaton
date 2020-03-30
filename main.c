@@ -648,7 +648,8 @@ void UnitTestGradAutomatonDummyCreateFree(void) {
     ga == NULL ||
     ga->gradAutomaton.grad == NULL ||
     ga->gradAutomaton.fun == NULL ||
-    ga->gradAutomaton.type != GradAutomatonTypeDummy) {
+    ga->gradAutomaton.type != GradAutomatonTypeDummy ||
+    ga->gradAutomaton.isStable != false) {
 
     GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
     sprintf(
@@ -692,6 +693,16 @@ void UnitTestGradAutomatonDummyGet(void) {
     sprintf(
       GradAutomatonErr->_msg,
       "GradAutomatonDummyFun failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (GradAutomatonIsStable(ga) != ga->gradAutomaton.isStable) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonDummyIsStable failed");
     PBErrCatch(GradAutomatonErr);
 
   }
@@ -771,6 +782,16 @@ void UnitTestGradAutomatonDummyStep(void) {
 
   GradAutomatonStep(ga);
 
+  if (GradAutomatonIsStable(ga) != true) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonDummyStep failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
   GradAutomatonDummyFree(&ga);
 
   printf("UnitTestGradAutomatonDummyStep OK\n");
@@ -799,6 +820,7 @@ void UnitTestGradAutomatonWolframOriginalCreateFree(void) {
     ga->gradAutomaton.grad == NULL ||
     ga->gradAutomaton.fun == NULL ||
     ga->gradAutomaton.type != GradAutomatonTypeWolframOriginal ||
+    ga->gradAutomaton.isStable != false ||
     ((GrAFunWolframOriginal*)(ga->gradAutomaton.fun))->rule != rule ||
     ga->gradAutomaton.grad->_dim._val[0] != size ||
     ga->gradAutomaton.grad->_dim._val[1] != 1) {
@@ -850,6 +872,16 @@ void UnitTestGradAutomatonWolframOriginalGet(void) {
     sprintf(
       GradAutomatonErr->_msg,
       "GradAutomatonWolframOriginalFun failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (GradAutomatonIsStable(ga) != ga->gradAutomaton.isStable) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonWolframOriginalIsStable failed");
     PBErrCatch(GradAutomatonErr);
 
   }
@@ -1065,6 +1097,7 @@ void UnitTestGradAutomatonNeuraNetCreateFree(void) {
     ga->gradAutomaton.grad == NULL ||
     ga->gradAutomaton.fun == NULL ||
     ga->gradAutomaton.type != GradAutomatonTypeNeuraNet ||
+    ga->gradAutomaton.isStable != false ||
     ga->gradAutomaton.grad->_type != GradTypeSquare ||
     ga->gradAutomaton.grad->_dim._val[0] != 2 ||
     ga->gradAutomaton.grad->_dim._val[1] != 2) {
@@ -1118,6 +1151,16 @@ void UnitTestGradAutomatonNeuraNetGet(void) {
     sprintf(
       GradAutomatonErr->_msg,
       "GradAutomatonNeuraNetGrad failed");
+    PBErrCatch(GradAutomatonErr);
+
+  }
+
+  if (GradAutomatonIsStable(ga) != ga->gradAutomaton.isStable) {
+
+    GradAutomatonErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(
+      GradAutomatonErr->_msg,
+      "GradAutomatonNeuraNetIsStable failed");
     PBErrCatch(GradAutomatonErr);
 
   }
