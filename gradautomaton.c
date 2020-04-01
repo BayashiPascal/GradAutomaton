@@ -498,7 +498,7 @@ void _GrAFunNeuraNetApply(
 
         VecSet(
           input,
-          (link + 1) * VecGetDim(output) + iDim,
+          (iLink + 1) * VecGetDim(output) + iDim,
           val);
 
       }
